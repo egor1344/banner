@@ -1,0 +1,9 @@
+version: '3.7'
+
+services:
+  rotation_banner:
+    build:
+      context: ./rotation_banner
+    restart: unless-stopped
+    volumes:
+      - ./rotation_banner:/app:cached
