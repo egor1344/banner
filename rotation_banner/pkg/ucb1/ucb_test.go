@@ -8,8 +8,9 @@ func TestUSB(t *testing.T) {
 		result                                    float64
 	}{
 		{0, 0, 0, 0},
-		{1, 1, 1, 0},
-		{2, 3, 4, 0},
+		{-1, 1, 2, 0},
+		{1, 1, 1, 1},
+		{2, 3, 4, 1.1547005383792515},
 	}
 	for i, c := range cases {
 		t.Log(i, c)

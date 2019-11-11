@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package rotation_banner;
+
+import "proto/banner/banner.proto";
+
+service RotationBanner {
+    rpc AddBanner (AddBannerRequest) returns (AddBannerResponse);
+    rpc DelBanner (DelBannerRequest) returns (DelBannerResponse);
+    rpc CountTransition (CountTransitionRequest) returns (CountTransitionResponse);
+    rpc GetBanner (GetBannerRequest) returns (GetBannerResponse);
+}
+
+message AddBannerRequest {
+    banner.Banner banner = 1;
+}
+
+message AddBannerResponse {
+    oneof result {
+        bool status = 1;
+        string error = 2;
+    }
+}
+
+message DelBannerRequest {
+    int64 id = 1;
+}
+
+message DelBannerResponse {
+    oneof result {
+        bool status = 1;
+        string error = 2;
+    }
+}
+
+message CountTransitionRequest {
+    int64 id_banner = 1;
+    int64 id_soc_dem_group = 2;
+}
+
+message CountTransitionResponse {
+    oneof result {
+        bool status = 1;
+        string error = 2;
+    }
+}
+
+message GetBannerRequest {
+    int64 id_slot = 1;
+    int64 id_soc_dem_group = 2;
+}
+
+message GetBannerResponse {
+    banner.Banner banner = 1;
+}

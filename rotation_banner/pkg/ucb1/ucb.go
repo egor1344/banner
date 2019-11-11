@@ -14,7 +14,7 @@ func UCB(countClick, countDisplay, allCountDisplay int) (result float64, err err
 		all_count_display - сумма показов всех баннеров
 	*/
 	log.Logger.Info(countClick, countDisplay, allCountDisplay)
-	if countClick == 0 || countDisplay == 0 || allCountDisplay == 0 {
+	if countClick <= 0 || countDisplay <= 0 || allCountDisplay <= 0 {
 		return 0, errors.New("variables equals 0")
 	}
 	bannerActual := float64(countClick / countDisplay)

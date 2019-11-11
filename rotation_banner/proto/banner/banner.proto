@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package banner;
+
+import "proto/slot/slot.proto";
+
+message Banner {
+    int64 id = 1;
+    slot.Slot slot = 2;
+    string Description = 3;
+}
