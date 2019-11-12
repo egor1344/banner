@@ -1,6 +1,9 @@
 test_ucb:
     CGO_ENABLED=0 go test ./pkg/ucb1/
 
+run_grpc_server:
+	go run main.go server
+
 generate_proto:
 	protoc proto/banner/banner.proto --go_out=plugins=grpc:.
 	protoc proto/server/server.proto --go_out=plugins=grpc:.

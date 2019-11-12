@@ -7,3 +7,5 @@ services:
     restart: unless-stopped
     volumes:
       - ./rotation_banner:/app:cached
+    environment:
+      - DB_DSN
