@@ -6,13 +6,13 @@ import (
 	log "github.com/egor1344/banner/rotation_banner/pkg/logger"
 )
 
-// var dbDsn string
+var dbDsn string
 
-var GrpcServerCmd = &cobra.Command{
-	Use: "grpc_server",
-	Short: "run grpc server",
+var RestApiServerCmd = &cobra.Command{
+	Use: "rest_api_server",
+	Short: "run rest api server",
 	Run: func(cmd *cobra.Command, args []string){
-		log.Logger.Info("run grpc server mazafaka")
+		log.Logger.Info("run rest api server mazafaka")
 	},
 }
 
