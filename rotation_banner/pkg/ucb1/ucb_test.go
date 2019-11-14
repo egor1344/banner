@@ -26,16 +26,16 @@ func TestUCBList(t *testing.T) {
 		objectsList *ListObject
 		result      int
 	}{
-		//{
-		//	&ListObject{
-		//		[]*Object{
-		//			{1, 0, 0, 0},
-		//			{2, 0, 0, 0},
-		//			{3, -1, 1, 2},
-		//			{4, 1, 1, 1},
-		//			{5, 2, 3, 4},
-		//		},
-		//	}, 4},
+		{
+			&ListObject{
+				[]*Object{
+					{1, 0, 0, 0},
+					{2, 0, 0, 0},
+					{3, -1, 1, 2},
+					{4, 1, 1, 1},
+					{5, 2, 3, 4},
+				},
+			}, 4},
 		{
 			&ListObject{
 				[]*Object{

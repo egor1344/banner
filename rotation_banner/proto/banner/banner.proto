@@ -4,6 +4,8 @@ package banner;
 
 import "proto/slot/slot.proto";
 
+option go_package = "github.com/egor1344/banner/rotation_banner/proto/banner/banner.proto";
+
 message Banner {
     int64 id = 1;
     slot.Slot slot = 2;

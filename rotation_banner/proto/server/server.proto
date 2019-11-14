@@ -1,8 +1,10 @@
 syntax = "proto3";
 
-package rotation_banner;
+package server;
 
 import "proto/banner/banner.proto";
+
+option go_package = "github.com/egor1344/banner/rotation_banner/proto/server/server.proto";
 
 service RotationBanner {
     rpc AddBanner (AddBannerRequest) returns (AddBannerResponse);
