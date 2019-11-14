@@ -14,4 +14,4 @@ generate_proto:
 	protoc proto/soc_dem_group/soc_dem_group.proto --go_out=plugins=grpc:.
 
 
-.PHONY: test_ucb generate_proto
+.PHONY: test_ucb generate_proto run_grpc_server run_rest_api_server
