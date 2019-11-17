@@ -5,23 +5,49 @@
 package api
 
 import (
+	"github.com/egor1344/banner/rotation_banner/internal/api"
+	"github.com/egor1344/banner/rotation_banner/internal/databases/postgres"
+	"github.com/egor1344/banner/rotation_banner/internal/domain/services"
 	log "github.com/egor1344/banner/rotation_banner/pkg/logger"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
-var dbDsn string
+// initRestServer - инициализация grpc сервера
+func initRestServer() (*api.RestBannerServer, error) {
+	log.Logger.Info("initGrpcServer")
+	dbDsn := viper.GetString("DB_DSN")
+	if dbDsn == "" {
+		log.Logger.Error("dont set env variable DB_DSN")
+	}
+	database, err := postgres.InitPgBannerStorage(dbDsn)
+	if err != nil {
+		log.Logger.Error("databases error", err)
+	}
+	database.Log = log.Logger
+	grpcService := services.Banner{Database: database, Log: log.Logger}
+	return &api.RestBannerServer{BannerService: &grpcService, Log: log.Logger}, nil
+}
 
 var RestApiServerCmd = &cobra.Command{
 	Use:   "rest_api_server",
 	Short: "run rest api server",
 	Run: func(cmd *cobra.Command, args []string) {
-		log.Logger.Info("run rest api server mazafaka")
+		log.Logger.Info("run rest api server")
+		restServer, err := initRestServer()
+		if err != nil {
+			log.Logger.Error("error run rest server ", err)
+		}
+		address := viper.GetString("API_HOST") + ":" + viper.GetString("API_PORT")
+		log.Logger.Info(address)
+		restServer.RunServer(address)
 	},
 }
 
 func init() {
 	err := viper.BindEnv("DB_DSN")
+	err = viper.BindEnv("API_PORT")
+	err = viper.BindEnv("API_HOST")
 	if err != nil {
 		log.Logger.Info(err)
 	}

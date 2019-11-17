@@ -1,5 +1,11 @@
 version: '3.7'
 
+x-app_environment: &app_environment
+  environment:
+    - API_PORT
+    - API_HOST
+    - DB_DSN
+
 services:
   rotation_banner:
     build:
@@ -7,5 +13,14 @@ services:
     restart: unless-stopped
     volumes:
       - ./rotation_banner:/app:cached
-    environment:
-      - DB_DSN
+    ports:
+      - "8000:8000"
+    <<: *app_environment
+
+  db:
+    image: postgres:12-alpine
+    volumes:
+      - ./db:/var/lib/postgresql/data
+    restart: unless-stopped
+    ports:
+      - 15145:5432

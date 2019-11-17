@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package slot;
-option go_package = "github.com/egor1344/banner/rotation_banner/proto/slot/slot.proto";
+option go_package = "github.com/egor1344/banner/rotation_banner/proto/slot";
 
 message Slot {
     int64 id = 1;

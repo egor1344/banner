@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package soc_dem_group;
 
-option go_package = "github.com/egor1344/banner/rotation_banner/proto/soc_dem_group/soc_dem_group.proto";
+option go_package = "github.com/egor1344/banner/rotation_banner/proto/soc_dem_group";
 
 message SocDemGroup {
     int64 id = 1;

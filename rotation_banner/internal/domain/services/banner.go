@@ -6,6 +6,7 @@ package services
 
 import (
 	"context"
+
 	"github.com/egor1344/banner/rotation_banner/internal/domain/interfaces"
 	"go.uber.org/zap"
 )
@@ -16,10 +17,10 @@ type Banner struct {
 }
 
 // AddBanner - Добавить баннер
-func (b *Banner) AddBanner(ctx context.Context, idBanner int64, idSlot int64) (string, error) {
+func (b *Banner) AddBanner(ctx context.Context, idBanner int64, idSlot int64) error {
 	b.Log.Info("add banner")
-	s, err := b.Database.AddBanner(ctx, idBanner, idSlot)
-	return s, err
+	err := b.Database.AddBanner(ctx, idBanner, idSlot)
+	return err
 }
 
 // DelBanner - Удалить баннер

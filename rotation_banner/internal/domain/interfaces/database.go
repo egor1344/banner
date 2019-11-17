@@ -5,7 +5,7 @@ import "context"
 // Database - Интерфейс реализирующий работу с БД
 type Database interface {
 	// Добавить баннер
-	AddBanner(ctx context.Context, idBanner int64, idSlot int64) (string, error)
+	AddBanner(ctx context.Context, idBanner int64, idSlot int64) error
 	// Удалить баннер
 	DelBanner(ctx context.Context, idBanner int64) error
 	// Засчитать переход
