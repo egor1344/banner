@@ -22,7 +22,7 @@ func initGrpcServer() (*api.GrpcBannerServer, error) {
 	}
 	database, err := postgres.InitPgBannerStorage(dbDsn)
 	if err != nil {
-		log.Logger.Error("databases error", err)
+		log.Logger.Error("databases error ", err)
 	}
 	database.Log = log.Logger
 	grpcService := services.Banner{Database: database, Log: log.Logger}

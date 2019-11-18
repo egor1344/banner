@@ -31,7 +31,12 @@ func TestMain(t *testing.M) {
 	os.Exit(t.Run())
 }
 
+type BannerBD struct {
+	id int64 `db:"id"`
+}
+
 func TestPgBannerStorage_AddBanner(t *testing.T) {
+	// Проверяем функционал
 	ctx := context.Background()
 	testCases := []struct {
 		idBanner, idSlot int64
@@ -47,6 +52,16 @@ func TestPgBannerStorage_AddBanner(t *testing.T) {
 			t.Error(err)
 		}
 	}
+	// Проверяем наличие данных в БД
+	//rows, err := pgbs.db.Queryx("SELECT * FROM banners")
+	//if err != nil {
+	//	t.Error("connect database error ", err)
+	//}
+	//for i, c := range testCases {
+	//	rows.Next()
+	//	var banner BannerBD
+	//	err = rows.StructScan(banner)
+	//}
 }
 
 func TestPgBannerStorage_DelBanner(t *testing.T) {

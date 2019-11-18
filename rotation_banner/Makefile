@@ -13,5 +13,7 @@ generate_proto:
 	protoc proto/slot/slot.proto --go_out=plugins=grpc:.
 	protoc proto/soc_dem_group/soc_dem_group.proto --go_out=plugins=grpc:.
 
+test:
+    docker-compose
 
 .PHONY: help
