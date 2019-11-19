@@ -88,7 +88,7 @@ func (pgbs *PgBannerStorage) AddBanner(ctx context.Context, idBanner int64, idSl
 	if !existsSlot {
 		pgbs.Log.Error("slot not exists ", err)
 	}
-	_, err = pgbs.db.ExecContext(ctx, "update slot set id_banner=$1 where id=$2;", idBanner, idSlot)
+	_, err = pgbs.db.ExecContext(ctx, "insert into rotations(id_banner, id_slot) values ($1, $2);", idBanner, idSlot)
 	if err != nil {
 		pgbs.Log.Error(err)
 	}

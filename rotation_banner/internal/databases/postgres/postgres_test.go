@@ -31,11 +31,25 @@ func TestMain(t *testing.M) {
 	os.Exit(t.Run())
 }
 
-type BannerBD struct {
-	id int64 `db:"id"`
+type rotationBD struct {
+	Id       int64 `db:"id"`
+	IdBanner int64 `db:"id_banner"`
+	IdSlot   int64 `db:"id_slot"`
+}
+
+func truncate_db(t *testing.T, pgbs *PgBannerStorage) {
+	tables := []string{"banners", "rotations", "slot", "soc_dem_group", "statistic"}
+	for _, table := range tables {
+		_, err := pgbs.db.Query("truncate table " + table + " restart identity cascade;")
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
 }
 
 func TestPgBannerStorage_AddBanner(t *testing.T) {
+	// truncate_db
+	truncate_db(t, pgbs)
 	// Проверяем функционал
 	ctx := context.Background()
 	testCases := []struct {
@@ -52,38 +66,49 @@ func TestPgBannerStorage_AddBanner(t *testing.T) {
 			t.Error(err)
 		}
 	}
-	// Проверяем наличие данных в БД
-	//rows, err := pgbs.db.Queryx("SELECT * FROM banners")
-	//if err != nil {
-	//	t.Error("connect database error ", err)
-	//}
-	//for i, c := range testCases {
-	//	rows.Next()
-	//	var banner BannerBD
-	//	err = rows.StructScan(banner)
-	//}
-}
-
-func TestPgBannerStorage_DelBanner(t *testing.T) {
-	ctx := context.Background()
-	err := pgbs.DelBanner(ctx, 1)
+	//Проверяем наличие данных в БД
+	rows, err := pgbs.db.Queryx("SELECT * FROM rotations")
 	if err != nil {
-		t.Error(err)
+		t.Error("connect database error ", err)
+	}
+	for _, c := range testCases {
+		rows.Next()
+		var rotation rotationBD
+		err = rows.StructScan(&rotation)
+		if err != nil {
+			t.Fatal(err)
+		}
+		t.Log(rotation)
+		if rotation.IdSlot != c.idSlot {
+			t.Error("rotation id slot = ", rotation.IdSlot, " must be = ", c.idSlot)
+		}
+		if rotation.IdBanner != c.idBanner {
+			t.Error("rotation id banner = ", rotation.IdBanner, " must be = ", c.idBanner)
+		}
 	}
 }
 
-func TestPgBannerStorage_CountTransition(t *testing.T) {
-	ctx := context.Background()
-	err := pgbs.CountTransition(ctx, 1, 1)
-	if err != nil {
-		t.Error(err)
-	}
-}
-
-func TestPgBannerStorage_GetBanner(t *testing.T) {
-	ctx := context.Background()
-	err := pgbs.CountTransition(ctx, 1, 1)
-	if err != nil {
-		t.Error(err)
-	}
-}
+//
+//func TestPgBannerStorage_DelBanner(t *testing.T) {
+//	ctx := context.Background()
+//	err := pgbs.DelBanner(ctx, 1)
+//	if err != nil {
+//		t.Error(err)
+//	}
+//}
+//
+//func TestPgBannerStorage_CountTransition(t *testing.T) {
+//	ctx := context.Background()
+//	err := pgbs.CountTransition(ctx, 1, 1)
+//	if err != nil {
+//		t.Error(err)
+//	}
+//}
+//
+//func TestPgBannerStorage_GetBanner(t *testing.T) {
+//	ctx := context.Background()
+//	err := pgbs.CountTransition(ctx, 1, 1)
+//	if err != nil {
+//		t.Error(err)
+//	}
+//}

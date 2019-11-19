@@ -78,9 +78,9 @@ create table mtm_slot_banners
             on update cascade on delete set null
 );
 
-alter table mtm_slot_banners
+alter table rotations
     owner to postgres;
 
 create unique index mtm_slot_banners_id_uindex
-    on mtm_slot_banners (id);
+    on rotations (id);
 

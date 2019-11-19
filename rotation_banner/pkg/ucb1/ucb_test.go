@@ -46,8 +46,7 @@ func TestUCBList(t *testing.T) {
 				}, 18,
 			}, 1},
 	}
-	for i, c := range cases {
-		t.Log(i, c)
+	for _, c := range cases {
 		IDObject, err := c.objectsList.GetRelevantObject()
 		if err != nil {
 			t.Error("Error.", err)
