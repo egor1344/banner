@@ -4,17 +4,16 @@ import "testing"
 
 func TestUCB(t *testing.T) {
 	cases := []struct {
-		object *Object
+		object *BannerStatistic
 		result float64
 	}{
-		{&Object{0, 0, 0, 0}, 0},
-		{&Object{1, -1, 1, 2}, 0},
-		{&Object{2, 1, 1, 1}, 1},
-		{&Object{3, 2, 3, 4}, 0.6666666666666666},
+		{&BannerStatistic{0, 0, 0}, 0},
+		{&BannerStatistic{1, -1, 2}, 0},
+		{&BannerStatistic{2, 1, 1}, 3},
+		{&BannerStatistic{3, 2, 4}, 0.5},
 	}
 	for _, c := range cases {
-		//t.Log(i, c)
-		usbResult, _ := UCB(c.object)
+		usbResult, _ := UCB(c.object, 7)
 		if usbResult != c.result {
 			t.Error("Error. usb_result = ", usbResult, ". Result must be ", c.result)
 		}
@@ -23,28 +22,28 @@ func TestUCB(t *testing.T) {
 
 func TestUCBList(t *testing.T) {
 	cases := []struct {
-		objectsList *ListObject
+		objectsList *ListBannerStatistic
 		result      int
 	}{
 		{
-			&ListObject{
-				[]*Object{
-					{1, 0, 0, 0},
-					{2, 0, 0, 0},
-					{3, -1, 1, 2},
-					{4, 1, 1, 1},
-					{5, 2, 3, 4},
-				},
+			&ListBannerStatistic{
+				[]*BannerStatistic{
+					{1, 0, 0},
+					{2, 0, 0},
+					{3, -1, 1},
+					{4, 1, 1},
+					{5, 2, 3},
+				}, 7,
 			}, 4},
 		{
-			&ListObject{
-				[]*Object{
-					{1, 2, 3, 4},
-					{2, 3, 4, 5},
-					{3, 5, 7, 8},
-					{4, 2, 1, 0},
-					{5, 5, 3, 2},
-				},
+			&ListBannerStatistic{
+				[]*BannerStatistic{
+					{1, 2, 3},
+					{2, 3, 4},
+					{3, 5, 7},
+					{4, 2, 1},
+					{5, 5, 3},
+				}, 18,
 			}, 1},
 	}
 	for i, c := range cases {

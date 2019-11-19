@@ -1,9 +1,3 @@
-create schema public;
-
-comment on schema public is 'standard public schema';
-
-alter schema public owner to postgres;
-
 create table banners
 (
     id serial not null
@@ -30,14 +24,10 @@ create unique index soc_dem_group_id_uindex
 
 create table slot
 (
-    id        serial not null
+    id   serial not null
         constraint slot_pk
             primary key,
-    name      text,
-    id_banner integer
-        constraint slot_banners_id_fk
-            references banners
-            on update cascade on delete set null
+    name text
 );
 
 alter table slot
@@ -72,4 +62,25 @@ alter table statistic
 
 create unique index statistic_id_uindex
     on statistic (id);
+
+create table mtm_slot_banners
+(
+    id        serial  not null
+        constraint mtm_slot_banners_pk
+            primary key,
+    id_slot   integer not null
+        constraint mtm_slot_banners_slot_id_fk
+            references slot
+            on update cascade on delete cascade,
+    id_banner integer
+        constraint mtm_slot_banners_banners_id_fk
+            references banners
+            on update cascade on delete set null
+);
+
+alter table mtm_slot_banners
+    owner to postgres;
+
+create unique index mtm_slot_banners_id_uindex
+    on mtm_slot_banners (id);
 
