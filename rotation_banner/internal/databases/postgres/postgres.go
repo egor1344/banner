@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 
+	"github.com/egor1344/banner/rotation_banner/pkg/ucb1"
 	_ "github.com/jackc/pgx/stdlib"
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
@@ -94,7 +95,7 @@ func (pgbs *PgBannerStorage) existsSocDemGroup(ctx context.Context, idSocDemGrou
 }
 
 // existsStatistic - Проверка на существование записи о статистике с данными параметрами
-func (pgbs *PgBannerStorage) existsStatistic(ctx context.Context, idBanner int64, idSocDemGroup int64, idSlot int64, create bool) (bool, error) {
+func (pgbs *PgBannerStorage) existsStatistic(ctx context.Context, idBanner, idSocDemGroup, idSlot int64, create bool) (bool, error) {
 	//pgbs.Log.Info("exists slot")
 	var count int64
 	err := pgbs.db.GetContext(ctx, &count, "select count(*) from statistic where id_banner=$1 and id_soc_dem=$2 and id_slot=$3", idBanner, idSocDemGroup, idSlot)
@@ -116,7 +117,7 @@ func (pgbs *PgBannerStorage) existsStatistic(ctx context.Context, idBanner int64
 }
 
 // AddBanner - Добавить баннер в ротацию
-func (pgbs *PgBannerStorage) AddBanner(ctx context.Context, idBanner int64, idSlot int64) error {
+func (pgbs *PgBannerStorage) AddBanner(ctx context.Context, idBanner, idSlot int64) error {
 	//pgbs.Log.Info("bd add banner")
 	existsBanner, err := pgbs.existsBanner(ctx, idBanner, true)
 	if err != nil {
@@ -152,7 +153,7 @@ func (pgbs *PgBannerStorage) DelBanner(ctx context.Context, idBanner int64) erro
 }
 
 // CountTransition - Засчитать переход
-func (pgbs *PgBannerStorage) CountTransition(ctx context.Context, idBanner int64, idSocDemGroup int64, idSlot int64) error {
+func (pgbs *PgBannerStorage) CountTransition(ctx context.Context, idBanner, idSocDemGroup int64, idSlot int64) error {
 	//pgbs.Log.Info("bd count transition")
 	existsSocDemGroup, err := pgbs.existsSocDemGroup(ctx, idSocDemGroup, true)
 	if err != nil {
@@ -191,8 +192,49 @@ func (pgbs *PgBannerStorage) CountTransition(ctx context.Context, idBanner int64
 	return nil
 }
 
-// GetBanner - Выбрать баннер для показа
-func (pgbs *PgBannerStorage) GetBanner(ctx context.Context, idSlot int64, idSocDemGroup int64) (int64, error) {
+// incCountView - Увеличение количества показов в статистике
+func (pgbs *PgBannerStorage) incCountView(ctx context.Context, idBanner, idSlot, idSocDemGroup int64) error {
 	pgbs.Log.Info("bd get banner")
-	return 0, nil
+	_, err := pgbs.db.ExecContext(ctx, `update statistic set count_views = count_views + 1 where id_slot = $1 and id_soc_dem = $2 and id_banner=$3;`, idSlot, idSocDemGroup, idBanner)
+	if err != nil {
+		pgbs.Log.Error("error incCountView ", err)
+	}
+	return nil
+}
+
+// GetBanner - Выбрать баннер для показа
+func (pgbs *PgBannerStorage) GetBanner(ctx context.Context, idSlot, idSocDemGroup int64) (int64, error) {
+	//pgbs.Log.Info("bd get banner")
+	rows, err := pgbs.db.QueryxContext(ctx, `select id_banner,
+														 count_click,
+                                                         count_views,
+														 SUM(count_views) OVER
+															  (PARTITION BY id_slot) AS all_count_views
+													from statistic
+														 where id_slot = $1
+														 and id_soc_dem = $2;`, idSlot, idSocDemGroup)
+	if err != nil {
+		pgbs.Log.Error("error get banner ", err)
+	}
+	var s struct {
+		IdBanner      int64 `db:"id_banner"`
+		CountClick    int64 `db:"count_click"`
+		CountView     int64 `db:"count_views"`
+		AllCountViews int64 `db:"all_count_views"`
+	}
+	var lbs ucb1.ListBannerStatistic
+	for rows.Next() {
+		err = rows.StructScan(&s)
+		lbs.Objects = append(lbs.Objects, &ucb1.BannerStatistic{CountClick: s.CountClick, ID: s.IdBanner, CountDisplay: s.CountView})
+	}
+	lbs.AllCountDisplay = s.AllCountViews
+	id, err := lbs.GetRelevantObject()
+	if err != nil {
+		pgbs.Log.Error("error in GetRelevantObject ", err)
+	}
+	err = pgbs.incCountView(ctx, id, idSlot, idSocDemGroup)
+	if err != nil {
+		pgbs.Log.Error("error in GetRelevantObject ", err)
+	}
+	return id, nil
 }
