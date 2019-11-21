@@ -3,6 +3,7 @@ module github.com/egor1344/banner/rotation_banner
 go 1.13
 
 require (
+	github.com/DATA-DOG/go-sqlmock v1.3.3
 	github.com/cockroachdb/apd v1.1.0 // indirect
 	github.com/gofrs/uuid v3.2.0+incompatible // indirect
 	github.com/golang/protobuf v1.3.2

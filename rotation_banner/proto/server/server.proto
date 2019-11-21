@@ -38,6 +38,7 @@ message DelBannerResponse {
 message CountTransitionRequest {
     int64 id_banner = 1;
     int64 id_soc_dem_group = 2;
+    int64 id_slot = 3;
 }
 
 message CountTransitionResponse {
@@ -53,5 +54,8 @@ message GetBannerRequest {
 }
 
 message GetBannerResponse {
-    banner.Banner banner = 1;
+    oneof result {
+        int64 id_banner = 1;
+        string error = 2;
+    }
 }

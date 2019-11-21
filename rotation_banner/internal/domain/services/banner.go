@@ -31,9 +31,9 @@ func (b *Banner) DelBanner(ctx context.Context, idBanner int64) error {
 }
 
 // CountTransition - Засчитать переход
-func (b *Banner) CountTransition(ctx context.Context, idBanner int64, idSocDemGroup int64) error {
+func (b *Banner) CountTransition(ctx context.Context, idBanner, idSocDemGroup, idSlot int64) error {
 	b.Log.Info("Count Transition")
-	err := b.Database.CountTransition(ctx, idBanner, idSocDemGroup)
+	err := b.Database.CountTransition(ctx, idBanner, idSocDemGroup, idSlot)
 	return err
 }
 
