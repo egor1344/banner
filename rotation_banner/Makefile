@@ -1,30 +1,22 @@
 GOCMD=go
 GOTEST=$(GOCMD) test
+GOTESTFLAGS=-v
 
-test:
-	test_ucb
-	test_postgres
-#	test_banner_service
-	test_api_grpc
-
+# Test
 test_ucb:
-	CGO_ENABLED=0  $(GOTEST) -v ./pkg/ucb1/
+	CGO_ENABLED=0  $(GOTEST) $(GOTESTFLAGS) ./pkg/ucb1/
 
 test_postgres:
-	CGO_ENABLED=0  $(GOTEST) -v ./internal/databases/postgres/
-
-test_banner_service:
-	CGO_ENABLED=0  $(GOTEST) -v ./internal/domain/services/
+	CGO_ENABLED=0  $(GOTEST) $(GOTESTFLAGS) ./internal/databases/postgres/
 
 test_api_grpc:
-	CGO_ENABLED=0  $(GOTEST) -v ./internal/api/grpc
+	CGO_ENABLED=0  $(GOTEST) $(GOTESTFLAGS) ./internal/api/grpc
 
 test_api_rest:
-	CGO_ENABLED=0  $(GOTEST) -v ./internal/api/rest
+	CGO_ENABLED=0  $(GOTEST) $(GOTESTFLAGS) ./internal/api/rest
 
+test: test_ucb test_postgres test_api_grpc test_api_rest
 
-test_api:
-	CGO_ENABLED=0  $(GOTEST) -v ./internal/api/
 
 run_grpc_server:
 	go run main.go grpc_server

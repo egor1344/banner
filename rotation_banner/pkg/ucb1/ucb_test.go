@@ -23,7 +23,7 @@ func TestUCB(t *testing.T) {
 func TestUCBList(t *testing.T) {
 	cases := []struct {
 		objectsList *ListBannerStatistic
-		result      int
+		result      int64
 	}{
 		{
 			&ListBannerStatistic{
