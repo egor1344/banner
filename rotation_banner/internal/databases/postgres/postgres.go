@@ -102,6 +102,7 @@ func (pgbs *PgBannerStorage) existsStatistic(ctx context.Context, idBanner, idSo
 	if err != nil {
 		pgbs.Log.Error("databases error ", err)
 	}
+	pgbs.Log.Info(count)
 	if count == 0 {
 		if create {
 			_, err = pgbs.DB.ExecContext(ctx, "INSERT into statistic(id_banner, id_soc_dem, count_click, count_views, id_slot) values ($1, $2, $3, $4, $5);", idBanner, idSocDemGroup, 0, 1, idSlot)
@@ -152,6 +153,15 @@ func (pgbs *PgBannerStorage) DelBanner(ctx context.Context, idBanner int64) erro
 	return nil
 }
 
+// incCountClick- Увеличение количества кликов в статистике
+func (pgbs *PgBannerStorage) incCountClick(ctx context.Context, idBanner, idSlot, idSocDemGroup int64) error {
+	_, err := pgbs.DB.ExecContext(ctx, `update statistic set count_click = count_click + 1  where id_slot = $1 and id_soc_dem = $2 and id_banner=$3;`, idSlot, idSocDemGroup, idBanner)
+	if err != nil {
+		pgbs.Log.Error("error incCountClick ", err)
+	}
+	return nil
+}
+
 // CountTransition - Засчитать переход
 func (pgbs *PgBannerStorage) CountTransition(ctx context.Context, idBanner, idSocDemGroup int64, idSlot int64) error {
 	//pgbs.Log.Info("bd count transition")
@@ -183,8 +193,12 @@ func (pgbs *PgBannerStorage) CountTransition(ctx context.Context, idBanner, idSo
 	if !existsStatistic {
 		pgbs.Log.Error("slot not exists")
 	}
-	_, err = pgbs.DB.ExecContext(ctx, "update statistic set count_click = count_click+1"+
-		"where id_banner=$1 and id_soc_dem=$2 and id_slot=$3", idBanner, idSocDemGroup, idSlot)
+	err = pgbs.incCountClick(ctx, idBanner, idSlot, idSocDemGroup)
+	if err != nil {
+		pgbs.Log.Error(err)
+		return err
+	}
+	err = pgbs.incCountView(ctx, idBanner, idSlot, idSocDemGroup)
 	if err != nil {
 		pgbs.Log.Error(err)
 		return err
@@ -195,7 +209,7 @@ func (pgbs *PgBannerStorage) CountTransition(ctx context.Context, idBanner, idSo
 // incCountView - Увеличение количества показов в статистике
 func (pgbs *PgBannerStorage) incCountView(ctx context.Context, idBanner, idSlot, idSocDemGroup int64) error {
 	pgbs.Log.Info("bd get banner")
-	_, err := pgbs.DB.ExecContext(ctx, `update statistic set count_views = count_views + 1 where id_slot = $1 and id_soc_dem = $2 and id_banner=$3;`, idSlot, idSocDemGroup, idBanner)
+	_, err := pgbs.DB.ExecContext(ctx, `update statistic set count_views = count_views + 1  where id_slot = $1 and id_soc_dem = $2 and id_banner=$3;`, idSlot, idSocDemGroup, idBanner)
 	if err != nil {
 		pgbs.Log.Error("error incCountView ", err)
 	}
@@ -231,10 +245,12 @@ func (pgbs *PgBannerStorage) GetBanner(ctx context.Context, idSlot, idSocDemGrou
 	id, err := lbs.GetRelevantObject()
 	if err != nil {
 		pgbs.Log.Error("error in GetRelevantObject ", err)
+		return 0, err
 	}
 	err = pgbs.incCountView(ctx, id, idSlot, idSocDemGroup)
 	if err != nil {
 		pgbs.Log.Error("error in GetRelevantObject ", err)
+		return 0, err
 	}
 	return id, nil
 }

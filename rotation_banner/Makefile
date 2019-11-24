@@ -16,6 +16,13 @@ test_postgres:
 test_banner_service:
 	CGO_ENABLED=0  $(GOTEST) -v ./internal/domain/services/
 
+test_api_grpc:
+	CGO_ENABLED=0  $(GOTEST) -v ./internal/api/grpc
+
+test_api_rest:
+	CGO_ENABLED=0  $(GOTEST) -v ./internal/api/rest
+
+
 test_api:
 	CGO_ENABLED=0  $(GOTEST) -v ./internal/api/
 

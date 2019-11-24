@@ -13,8 +13,10 @@ services:
     restart: unless-stopped
     volumes:
       - ./rotation_banner:/app:cached
+    command: make run_rest_api_server
     ports:
-      - "8000:8000"
+      - 8000:8000
+      - 8080:8080
     <<: *app_environment
 
   db:

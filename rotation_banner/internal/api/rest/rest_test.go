@@ -1,15 +1,15 @@
-package api
+package rest
 
 import (
-	"context"
+	"bytes"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"testing"
 
+	"github.com/gorilla/mux"
+
 	"github.com/egor1344/banner/rotation_banner/internal/domain/models"
-
-	"github.com/egor1344/banner/rotation_banner/proto/slot"
-
-	"github.com/egor1344/banner/rotation_banner/proto/server"
 
 	"github.com/egor1344/banner/rotation_banner/internal/domain/services"
 
@@ -17,11 +17,10 @@ import (
 
 	"github.com/egor1344/banner/rotation_banner/internal/databases/postgres"
 	log "github.com/egor1344/banner/rotation_banner/pkg/logger"
-	"github.com/egor1344/banner/rotation_banner/proto/banner"
 	"github.com/spf13/viper"
 )
 
-var grpcService *GrpcBannerServer
+var restService *RestBannerServer
 var pgbs *postgres.PgBannerStorage
 
 func TestMain(t *testing.M) {
@@ -41,24 +40,27 @@ func TestMain(t *testing.M) {
 	}
 	database.Log = log.Logger
 	bannerService := &services.Banner{Database: database, Log: log.Logger}
-	grpcService = &GrpcBannerServer{Log: log.Logger, BannerService: bannerService}
+	restService = &RestBannerServer{Log: log.Logger, BannerService: bannerService}
 	os.Exit(t.Run())
 }
 
-func TestGrpcBannerServer_AddBanner(t *testing.T) {
+func TestRestBannerServer_AddBannerHandler(t *testing.T) {
 	tests.TruncateDb(t, pgbs.DB)
-	grpcService.Log.Info("Проверка функционала")
-	testAddBannerRequest := server.AddBannerRequest{Banner: &banner.Banner{Id: 1, Slot: &slot.Slot{Id: 1}, Description: "Test banner"}}
-	resp, err := grpcService.AddBanner(context.Background(), &testAddBannerRequest)
+	restService.Log.Info("Проверка функционала")
+	body := []byte(`{ "id_banner": 1, "id_slot": 1}`)
+	req, err := http.NewRequest("POST", "/api/add_banner/", bytes.NewBuffer(body))
 	if err != nil {
 		t.Error(err)
 	}
-	if resp.GetError() != "" {
-		t.Error("grpc error ", resp.GetError())
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(restService.AddBannerHandler)
+	handler.ServeHTTP(rr, req)
+	if status := rr.Code; status != http.StatusOK {
+		t.Error("wrong answer ")
 	}
 }
 
-func TestGrpcBannerServer_DelBanner(t *testing.T) {
+func TestRestBannerServer_DelBannerHandler(t *testing.T) {
 	tests.TruncateDb(t, pgbs.DB)
 	_, err := pgbs.DB.Exec(`
 		INSERT INTO public.banners (id) VALUES (1);
@@ -68,14 +70,19 @@ func TestGrpcBannerServer_DelBanner(t *testing.T) {
 		INSERT INTO public.rotations (id, id_slot, id_banner) VALUES (1,1,1);
 		INSERT INTO public.rotations (id, id_slot, id_banner) VALUES (2,2,2);
 		`)
-	grpcService.Log.Info("Проверка функционала")
-	testDelBannerRequest := server.DelBannerRequest{Id: 1}
-	resp, err := grpcService.DelBanner(context.Background(), &testDelBannerRequest)
+	restService.Log.Info("Проверка функционала")
+	req, err := http.NewRequest("DELETE", "/api/del_banner/1/", nil)
+	vars := map[string]string{"id": "1"}
+	req = mux.SetURLVars(req, vars)
 	if err != nil {
 		t.Error(err)
 	}
-	if resp.GetError() != "" {
-		t.Error("grpc error ", resp.GetError())
+	t.Log(mux.Vars(req))
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(restService.DelBannerHandler)
+	handler.ServeHTTP(rr, req)
+	if status := rr.Code; status != http.StatusOK {
+		t.Error("wrong answer ")
 	}
 	t.Log("Проверяем измение данных в БД")
 	rows, err := pgbs.DB.Queryx("SELECT * FROM rotations")
@@ -103,20 +110,20 @@ func TestGrpcBannerServer_DelBanner(t *testing.T) {
 	}
 }
 
-func TestGrpcBannerServer_CountTransition(t *testing.T) {
+func TestRestBannerServer_CountTransitionHandler(t *testing.T) {
 	tests.TruncateDb(t, pgbs.DB)
 	_, err := pgbs.DB.Exec(`
 		INSERT INTO public.banners (id) VALUES (1);
 		INSERT INTO public.slot (id) VALUES (1);
 `)
-	grpcService.Log.Info("Проверка функционала")
-	testCountTransitionRequest := server.CountTransitionRequest{IdBanner: 1, IdSocDemGroup: 1, IdSlot: 1}
-	resp, err := grpcService.CountTransition(context.Background(), &testCountTransitionRequest)
-	if err != nil {
-		t.Error(err)
-	}
-	if resp.GetError() != "" {
-		t.Error("grpc error ", resp.GetError())
+	restService.Log.Info("Проверка функционала")
+	body := []byte(`{"id_banner": 1,"id_slot": 1,"id_soc_dem": 1}`)
+	req, err := http.NewRequest("POST", "/api/count_transition/", bytes.NewBuffer(body))
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(restService.CountTransitionHandler)
+	handler.ServeHTTP(rr, req)
+	if status := rr.Code; status != http.StatusOK {
+		t.Error("wrong answer ")
 	}
 	t.Log("Проверяем измение данных в БД")
 	rows, err := pgbs.DB.Queryx("SELECT * FROM statistic")
@@ -126,7 +133,7 @@ func TestGrpcBannerServer_CountTransition(t *testing.T) {
 	testCases := []struct {
 		idBanner, idSlot, idSocDemGroup, countClick, CountViews int64
 	}{
-		{1, 1, 1, 1, 1},
+		{1, 1, 1, 1, 2},
 	}
 	for _, c := range testCases {
 		rows.Next()
@@ -153,7 +160,7 @@ func TestGrpcBannerServer_CountTransition(t *testing.T) {
 	}
 }
 
-func TestGrpcBannerServer_GetBanner(t *testing.T) {
+func TestRestBannerServer_GetBannerHandler(t *testing.T) {
 	tests.TruncateDb(t, pgbs.DB)
 	_, err := pgbs.DB.Exec(`
 		INSERT INTO public.banners (id) VALUES (1);
@@ -164,14 +171,19 @@ func TestGrpcBannerServer_GetBanner(t *testing.T) {
 		INSERT INTO public.statistic (id, id_banner, id_soc_dem, count_click, count_views, id_slot) VALUES (1, 2, 1, 1, 2, 1);
 		INSERT INTO public.statistic (id, id_banner, id_soc_dem, count_click, count_views, id_slot) VALUES (2, 1, 1, 2, 4, 1);
 		INSERT INTO public.statistic (id, id_banner, id_soc_dem, count_click, count_views, id_slot) VALUES (3, 3, 1, 4, 6, 1);`)
-	grpcService.Log.Info("Проверка функционала")
-	testGetBannerRequest := server.GetBannerRequest{IdSocDemGroup: 1, IdSlot: 1}
-	resp, err := grpcService.GetBanner(context.Background(), &testGetBannerRequest)
+	restService.Log.Info("Проверка функционала")
+	req, err := http.NewRequest("GET", "/api/get_banner/1/1/", nil)
+	vars := map[string]string{"idSlot": "1", "idSocDemGroup": "1"}
+	req = mux.SetURLVars(req, vars)
 	if err != nil {
 		t.Error(err)
 	}
-	if resp.GetError() != "" {
-		t.Error("grpc error ", resp.GetError())
+	t.Log(mux.Vars(req))
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(restService.GetBannerHandler)
+	handler.ServeHTTP(rr, req)
+	if status := rr.Code; status != http.StatusOK {
+		t.Error("wrong answer ")
 	}
 	t.Log("Проверяем измение данных в БД")
 	rows, err := pgbs.DB.Queryx("SELECT * FROM statistic")

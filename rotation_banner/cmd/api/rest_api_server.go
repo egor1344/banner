@@ -5,7 +5,7 @@
 package api
 
 import (
-	"github.com/egor1344/banner/rotation_banner/internal/api"
+	"github.com/egor1344/banner/rotation_banner/internal/api/rest"
 	"github.com/egor1344/banner/rotation_banner/internal/databases/postgres"
 	"github.com/egor1344/banner/rotation_banner/internal/domain/services"
 	log "github.com/egor1344/banner/rotation_banner/pkg/logger"
@@ -14,7 +14,7 @@ import (
 )
 
 // initRestServer - инициализация grpc сервера
-func initRestServer() (*api.RestBannerServer, error) {
+func initRestServer() (*rest.RestBannerServer, error) {
 	log.Logger.Info("initGrpcServer")
 	dbDsn := viper.GetString("DB_DSN")
 	if dbDsn == "" {
@@ -26,7 +26,7 @@ func initRestServer() (*api.RestBannerServer, error) {
 	}
 	database.Log = log.Logger
 	grpcService := services.Banner{Database: database, Log: log.Logger}
-	return &api.RestBannerServer{BannerService: &grpcService, Log: log.Logger}, nil
+	return &rest.RestBannerServer{BannerService: &grpcService, Log: log.Logger}, nil
 }
 
 var RestApiServerCmd = &cobra.Command{
