@@ -29,25 +29,31 @@ func initRestServer() (*rest.RestBannerServer, error) {
 	return &rest.RestBannerServer{BannerService: &grpcService, Log: log.Logger}, nil
 }
 
+func RunRestServer(c chan bool) {
+	log.Logger.Info("run rest api server")
+	restServer, err := initRestServer()
+	if err != nil {
+		log.Logger.Error("error run rest server ", err)
+	}
+	address := viper.GetString("API_REST_HOST") + ":" + viper.GetString("API_REST_PORT")
+	log.Logger.Info(address)
+	restServer.RunServer(address)
+	c <- true
+}
+
 var RestApiServerCmd = &cobra.Command{
 	Use:   "rest_api_server",
 	Short: "run rest api server",
 	Run: func(cmd *cobra.Command, args []string) {
-		log.Logger.Info("run rest api server")
-		restServer, err := initRestServer()
-		if err != nil {
-			log.Logger.Error("error run rest server ", err)
-		}
-		address := viper.GetString("API_HOST") + ":" + viper.GetString("API_PORT")
-		log.Logger.Info(address)
-		restServer.RunServer(address)
+		c := make(chan bool)
+		RunRestServer(c)
 	},
 }
 
 func init() {
 	err := viper.BindEnv("DB_DSN")
-	err = viper.BindEnv("API_PORT")
-	err = viper.BindEnv("API_HOST")
+	err = viper.BindEnv("API_REST_PORT")
+	err = viper.BindEnv("API_REST_HOST")
 	if err != nil {
 		log.Logger.Info(err)
 	}

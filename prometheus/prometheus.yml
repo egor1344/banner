@@ -1,0 +1,11 @@
+scrape_configs:
+  - job_name: node
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+          - nodeexporter:9100
+  - job_name: go_metrics
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+          - rotation_banner:8088

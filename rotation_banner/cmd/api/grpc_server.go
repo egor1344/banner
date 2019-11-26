@@ -29,29 +29,35 @@ func initGrpcServer() (*grpc.GrpcBannerServer, error) {
 	return &grpc.GrpcBannerServer{BannerService: &grpcService, Log: log.Logger}, nil
 }
 
+func RunGrpcServer(c chan bool) {
+	log.Logger.Info("run grpc server")
+	grpcServer, err := initGrpcServer()
+	if err != nil {
+		log.Logger.Fatal(err)
+	}
+	log.Logger.Info(grpcServer)
+	address := viper.GetString("API_GRPC_HOST") + ":" + viper.GetString("API_GRPC_PORT")
+	log.Logger.Info(address)
+	err = grpcServer.RunServer("tcp", address)
+	if err != nil {
+		c <- true
+		log.Logger.Fatal("Error run server")
+	}
+}
+
 var GrpcServerCmd = &cobra.Command{
 	Use:   "grpc_server",
 	Short: "run grpc server",
 	Run: func(cmd *cobra.Command, args []string) {
-		log.Logger.Info("run grpc server")
-		grpcServer, err := initGrpcServer()
-		if err != nil {
-			log.Logger.Fatal(err)
-		}
-		log.Logger.Info(grpcServer)
-		address := viper.GetString("API_HOST") + ":" + viper.GetString("API_PORT")
-		log.Logger.Info(address)
-		err = grpcServer.RunServer("tcp", address)
-		if err != nil {
-			log.Logger.Fatal("Error run server")
-		}
+		c := make(chan bool)
+		RunGrpcServer(c)
 	},
 }
 
 func init() {
 	err := viper.BindEnv("DB_DSN")
-	err = viper.BindEnv("API_PORT")
-	err = viper.BindEnv("API_HOST")
+	err = viper.BindEnv("API_GRPC_PORT")
+	err = viper.BindEnv("API_GRPC_HOST")
 	if err != nil {
 		log.Logger.Info(err)
 	}

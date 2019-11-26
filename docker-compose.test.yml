@@ -2,8 +2,10 @@ version: '3.7'
 
 x-app_environment: &app_environment
   environment:
-    - API_PORT
-    - API_HOST
+    - API_GRPC_PORT
+    - API_GRPC_HOST
+    - API_REST_PORT
+    - API_REST_HOST
     - DB_DSN
 
 services:

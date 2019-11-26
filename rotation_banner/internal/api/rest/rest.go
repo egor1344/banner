@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/egor1344/banner/rotation_banner/pkg/metrics"
+
 	"github.com/egor1344/banner/rotation_banner/internal/domain/models"
 
 	"github.com/egor1344/banner/rotation_banner/internal/domain/interfaces"
@@ -26,6 +28,7 @@ type RestBannerServer struct {
 // AddBannerHandler - Добавить баннер
 func (rbs *RestBannerServer) AddBannerHandler(w http.ResponseWriter, r *http.Request) {
 	rbs.Log.Info("rest add banner")
+	metrics.ApiCounter.Inc()
 	var rotations models.Rotation
 	reqBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -52,6 +55,7 @@ func (rbs *RestBannerServer) AddBannerHandler(w http.ResponseWriter, r *http.Req
 // DelBannerHandler - Удалить баннер
 func (rbs *RestBannerServer) DelBannerHandler(w http.ResponseWriter, r *http.Request) {
 	rbs.Log.Info("rest del banner ", mux.Vars(r))
+	metrics.ApiCounter.Inc()
 	bannerID, err := strconv.ParseInt(mux.Vars(r)["id"], 10, 64)
 	if err != nil {
 		rbs.Log.Error(err)
@@ -72,6 +76,7 @@ func (rbs *RestBannerServer) DelBannerHandler(w http.ResponseWriter, r *http.Req
 // CountTransitionHandler - Засчитать переход
 func (rbs *RestBannerServer) CountTransitionHandler(w http.ResponseWriter, r *http.Request) {
 	rbs.Log.Info("rest count transition")
+	metrics.ApiCounter.Inc()
 	var statistic models.Statistic
 	reqBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -97,6 +102,7 @@ func (rbs *RestBannerServer) CountTransitionHandler(w http.ResponseWriter, r *ht
 // GetBannerHandler - Выбрать баннер для показа
 func (rbs *RestBannerServer) GetBannerHandler(w http.ResponseWriter, r *http.Request) {
 	rbs.Log.Info("rest get banner")
+	metrics.ApiCounter.Inc()
 	idSlot, err := strconv.ParseInt(mux.Vars(r)["idSlot"], 10, 64)
 	idSocDemGroup, err := strconv.ParseInt(mux.Vars(r)["idSocDemGroup"], 10, 64)
 	if err != nil {

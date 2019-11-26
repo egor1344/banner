@@ -4,6 +4,8 @@ import (
 	"context"
 	"net"
 
+	"github.com/egor1344/banner/rotation_banner/pkg/metrics"
+
 	"github.com/egor1344/banner/rotation_banner/internal/domain/interfaces"
 	"github.com/egor1344/banner/rotation_banner/proto/server"
 	"go.uber.org/zap"
@@ -19,6 +21,7 @@ type GrpcBannerServer struct {
 // AddBanner - Добавить баннер
 func (gbs *GrpcBannerServer) AddBanner(ctx context.Context, in *server.AddBannerRequest) (*server.AddBannerResponse, error) {
 	gbs.Log.Info("grpc add banner")
+	metrics.ApiCounter.Inc()
 	banner := in.GetBanner()
 	err := gbs.BannerService.AddBanner(ctx, banner.Id, banner.Slot.Id)
 	if err != nil {
@@ -30,6 +33,7 @@ func (gbs *GrpcBannerServer) AddBanner(ctx context.Context, in *server.AddBanner
 // DelBanner - Удалить баннер
 func (gbs *GrpcBannerServer) DelBanner(ctx context.Context, in *server.DelBannerRequest) (*server.DelBannerResponse, error) {
 	gbs.Log.Info("grpc del banner")
+	metrics.ApiCounter.Inc()
 	bannerID := in.GetId()
 	err := gbs.BannerService.DelBanner(ctx, bannerID)
 	if err != nil {
@@ -41,6 +45,7 @@ func (gbs *GrpcBannerServer) DelBanner(ctx context.Context, in *server.DelBanner
 // CountTransition - Засчитать переход
 func (gbs *GrpcBannerServer) CountTransition(ctx context.Context, in *server.CountTransitionRequest) (*server.CountTransitionResponse, error) {
 	gbs.Log.Info("grpc count transition")
+	metrics.ApiCounter.Inc()
 	bannerId := in.GetIdBanner()
 	socDemGroupId := in.GetIdSocDemGroup()
 	slotId := in.GetIdSlot()
@@ -55,6 +60,7 @@ func (gbs *GrpcBannerServer) CountTransition(ctx context.Context, in *server.Cou
 // GetBanner - Выбрать баннер для показа
 func (gbs *GrpcBannerServer) GetBanner(ctx context.Context, in *server.GetBannerRequest) (*server.GetBannerResponse, error) {
 	gbs.Log.Info("grpc get banner")
+	metrics.ApiCounter.Inc()
 	socDemGroupId := in.GetIdSocDemGroup()
 	slotId := in.GetIdSlot()
 	bannerId, err := gbs.BannerService.GetBanner(ctx, slotId, socDemGroupId)
