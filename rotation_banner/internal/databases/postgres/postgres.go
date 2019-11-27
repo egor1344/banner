@@ -1,3 +1,4 @@
+/* Пакет для работы с БД Postgres */
 package postgres
 
 import (
@@ -253,4 +254,9 @@ func (pgbs *PgBannerStorage) GetBanner(ctx context.Context, idSlot, idSocDemGrou
 		return 0, err
 	}
 	return id, nil
+}
+
+// Close - Увеличение количества показов в статистике
+func (pgbs *PgBannerStorage) Close() {
+	pgbs.DB.Close()
 }

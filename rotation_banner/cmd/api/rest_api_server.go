@@ -5,6 +5,7 @@
 package api
 
 import (
+	"github.com/egor1344/banner/rotation_banner/internal/amqp"
 	"github.com/egor1344/banner/rotation_banner/internal/api/rest"
 	"github.com/egor1344/banner/rotation_banner/internal/databases/postgres"
 	"github.com/egor1344/banner/rotation_banner/internal/domain/services"
@@ -25,13 +26,21 @@ func initRestServer() (*rest.RestBannerServer, error) {
 		log.Logger.Error("databases error", err)
 	}
 	database.Log = log.Logger
-	grpcService := services.Banner{Database: database, Log: log.Logger}
+	// Инициализация очереди событий
+	rabbit := &amqp.Rabbit{AMQPDSN: viper.GetString("AMQP_DSN"), QueueName: viper.GetString("QUEUE_NAME")}
+	rabbit.Log = log.Logger
+	err = rabbit.Init()
+	if err != nil {
+		log.Logger.Error("amqp error ", err)
+	}
+	grpcService := services.Banner{Database: database, Log: log.Logger, AMQP: rabbit}
 	return &rest.RestBannerServer{BannerService: &grpcService, Log: log.Logger}, nil
 }
 
 func RunRestServer(c chan bool) {
 	log.Logger.Info("run rest api server")
 	restServer, err := initRestServer()
+	defer restServer.BannerService.CloseConnection()
 	if err != nil {
 		log.Logger.Error("error run rest server ", err)
 	}
@@ -54,6 +63,8 @@ func init() {
 	err := viper.BindEnv("DB_DSN")
 	err = viper.BindEnv("API_REST_PORT")
 	err = viper.BindEnv("API_REST_HOST")
+	err = viper.BindEnv("AMQP_DSN")
+	err = viper.BindEnv("QUEUE_NAME")
 	if err != nil {
 		log.Logger.Info(err)
 	}

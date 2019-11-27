@@ -14,4 +14,6 @@ type Service interface {
 	CountTransition(ctx context.Context, idBanner, idSocDemGroup, idSlot int64) error
 	// Выбрать баннер для показа
 	GetBanner(ctx context.Context, idSlot, idSocDemGroup int64) (int64, error)
+	// Закрытие открытых соединений при сбое (БД, AMQP прочее)
+	CloseConnection()
 }

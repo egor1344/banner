@@ -5,6 +5,7 @@
 package api
 
 import (
+	"github.com/egor1344/banner/rotation_banner/internal/amqp"
 	"github.com/egor1344/banner/rotation_banner/internal/api/grpc"
 	"github.com/egor1344/banner/rotation_banner/internal/databases/postgres"
 	"github.com/egor1344/banner/rotation_banner/internal/domain/services"
@@ -25,13 +26,21 @@ func initGrpcServer() (*grpc.GrpcBannerServer, error) {
 		log.Logger.Error("databases error ", err)
 	}
 	database.Log = log.Logger
-	grpcService := services.Banner{Database: database, Log: log.Logger}
+	// Инициализация очереди событий
+	rabbit := &amqp.Rabbit{AMQPDSN: viper.GetString("AMQP_DSN"), QueueName: viper.GetString("QUEUE_NAME")}
+	rabbit.Log = log.Logger
+	err = rabbit.Init()
+	if err != nil {
+		log.Logger.Error("amqp error ", err)
+	}
+	grpcService := services.Banner{Database: database, Log: log.Logger, AMQP: rabbit}
 	return &grpc.GrpcBannerServer{BannerService: &grpcService, Log: log.Logger}, nil
 }
 
 func RunGrpcServer(c chan bool) {
 	log.Logger.Info("run grpc server")
 	grpcServer, err := initGrpcServer()
+	defer grpcServer.BannerService.CloseConnection()
 	if err != nil {
 		log.Logger.Fatal(err)
 	}
@@ -58,6 +67,8 @@ func init() {
 	err := viper.BindEnv("DB_DSN")
 	err = viper.BindEnv("API_GRPC_PORT")
 	err = viper.BindEnv("API_GRPC_HOST")
+	err = viper.BindEnv("AMQP_DSN")
+	err = viper.BindEnv("QUEUE_NAME")
 	if err != nil {
 		log.Logger.Info(err)
 	}

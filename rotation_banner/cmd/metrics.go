@@ -2,7 +2,7 @@
 	Запуск grpc сервиса
 */
 
-package api
+package cmd
 
 import (
 	"net/http"

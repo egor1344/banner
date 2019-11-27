@@ -22,6 +22,7 @@ type GrpcBannerServer struct {
 func (gbs *GrpcBannerServer) AddBanner(ctx context.Context, in *server.AddBannerRequest) (*server.AddBannerResponse, error) {
 	gbs.Log.Info("grpc add banner")
 	metrics.ApiCounter.Inc()
+	metrics.AddBannerGrpcCounter.Inc()
 	banner := in.GetBanner()
 	err := gbs.BannerService.AddBanner(ctx, banner.Id, banner.Slot.Id)
 	if err != nil {
@@ -34,6 +35,7 @@ func (gbs *GrpcBannerServer) AddBanner(ctx context.Context, in *server.AddBanner
 func (gbs *GrpcBannerServer) DelBanner(ctx context.Context, in *server.DelBannerRequest) (*server.DelBannerResponse, error) {
 	gbs.Log.Info("grpc del banner")
 	metrics.ApiCounter.Inc()
+	metrics.DelBannerGrpcCounter.Inc()
 	bannerID := in.GetId()
 	err := gbs.BannerService.DelBanner(ctx, bannerID)
 	if err != nil {
@@ -46,6 +48,7 @@ func (gbs *GrpcBannerServer) DelBanner(ctx context.Context, in *server.DelBanner
 func (gbs *GrpcBannerServer) CountTransition(ctx context.Context, in *server.CountTransitionRequest) (*server.CountTransitionResponse, error) {
 	gbs.Log.Info("grpc count transition")
 	metrics.ApiCounter.Inc()
+	metrics.CountTransitionGrpcCounter.Inc()
 	bannerId := in.GetIdBanner()
 	socDemGroupId := in.GetIdSocDemGroup()
 	slotId := in.GetIdSlot()
@@ -61,6 +64,7 @@ func (gbs *GrpcBannerServer) CountTransition(ctx context.Context, in *server.Cou
 func (gbs *GrpcBannerServer) GetBanner(ctx context.Context, in *server.GetBannerRequest) (*server.GetBannerResponse, error) {
 	gbs.Log.Info("grpc get banner")
 	metrics.ApiCounter.Inc()
+	metrics.GetBannerGrpcCounter.Inc()
 	socDemGroupId := in.GetIdSocDemGroup()
 	slotId := in.GetIdSlot()
 	bannerId, err := gbs.BannerService.GetBanner(ctx, slotId, socDemGroupId)

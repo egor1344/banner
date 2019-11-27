@@ -6,13 +6,18 @@ x-app_environment: &app_environment
     - API_GRPC_HOST
     - API_REST_PORT
     - API_REST_HOST
+    - METRICS_PORT
+    - METRICS_HOST
     - DB_DSN
+    - AMQP_DSN
+    - QUEUE_NAME
 
 services:
   rotation_banner:
     build:
       context: ./rotation_banner
     restart: unless-stopped
+    command: wait-for db:5432 -t 10 -- make run
     volumes:
       - ./rotation_banner:/app:cached
     ports:
@@ -26,3 +31,17 @@ services:
     restart: unless-stopped
     ports:
       - 15145:5432
+
+  integrations_test:
+    build:
+      context: ./integrations_test
+    volumes:
+      - ./integrations_test:/opt/integration_tests:delegated
+    depends_on:
+      - db
+      - rabbitmq
+    links:
+      - db
+      - rotation_banner
+    command: go test
+    <<: *app_environment

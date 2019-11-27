@@ -1,6 +1,7 @@
-package api
+package cmd
 
 import (
+	"github.com/egor1344/banner/rotation_banner/cmd/api"
 	"github.com/spf13/cobra"
 )
 
@@ -12,8 +13,8 @@ var RootCmd = &cobra.Command{
 		rest := make(chan bool)
 		grpc := make(chan bool)
 		metrics := make(chan bool)
-		go RunGrpcServer(grpc)
-		go RunRestServer(rest)
+		go api.RunGrpcServer(grpc)
+		go api.RunRestServer(rest)
 		go RunMetricsHandler(rest)
 		for {
 			_, ok1 := <-rest
@@ -27,7 +28,7 @@ var RootCmd = &cobra.Command{
 }
 
 func init() {
-	RootCmd.AddCommand(GrpcServerCmd)
-	RootCmd.AddCommand(RestApiServerCmd)
+	RootCmd.AddCommand(api.GrpcServerCmd)
+	RootCmd.AddCommand(api.RestApiServerCmd)
 	RootCmd.AddCommand(MetricsCMD)
 }

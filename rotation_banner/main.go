@@ -1,12 +1,13 @@
 package main
 
 import (
-	"github.com/egor1344/banner/rotation_banner/cmd/api"
 	"log"
+
+	"github.com/egor1344/banner/rotation_banner/cmd"
 )
 
 func main() {
-	if err := api.RootCmd.Execute(); err != nil {
+	if err := cmd.RootCmd.Execute(); err != nil {
 		log.Fatal(err)
 	}
 }

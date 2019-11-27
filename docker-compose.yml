@@ -9,6 +9,8 @@ x-app_environment: &app_environment
     - METRICS_PORT
     - METRICS_HOST
     - DB_DSN
+    - AMQP_DSN
+    - QUEUE_NAME
 
 services:
   rotation_banner:
@@ -69,6 +71,16 @@ services:
     ports:
       - "9100:9100"
 
+  rabbitmq:
+    image: 'rabbitmq:3.7.17-management'
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    expose:
+      - "15672"
+    volumes:
+      - ./rabbit.def.json:/etc/rabbitmq/definitions.json:ro
+      - ./rabbit.config:/etc/rabbitmq/rabbitmq.config:ro
 
 volumes:
   prometheus_data: {}
