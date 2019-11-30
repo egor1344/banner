@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+//RunMetricsHandler - запуск сервиса для сбора метрик
 func RunMetricsHandler(c chan bool) {
 	address := viper.GetString("METRICS_HOST") + ":" + viper.GetString("METRICS_PORT")
 	log.Logger.Info(address)
@@ -24,6 +25,7 @@ func RunMetricsHandler(c chan bool) {
 	}
 }
 
+//MetricsCMD - Комманда для cobra
 var MetricsCMD = &cobra.Command{
 	Use:   "metrics",
 	Short: "run metrics",

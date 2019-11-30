@@ -1,9 +1,9 @@
+package services
+
 /*
 	Данный сервис реализует интерфейс Service.
 	Здесь происходит передача данных на уровень баз данных, а так же логгирование событий.
 */
-package services
-
 import (
 	"context"
 
@@ -13,6 +13,7 @@ import (
 	"go.uber.org/zap"
 )
 
+// Banner - структура которая опредляет внутренние актрибуты сервиса
 type Banner struct {
 	Database interfaces.Database // Интерфейс для работы с БД
 	AMQP     interfaces.AMQP     // Очередь сообщений

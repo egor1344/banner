@@ -7,6 +7,8 @@ import (
 	"os"
 	"testing"
 
+	"github.com/egor1344/banner/rotation_banner/internal/amqp"
+
 	"github.com/gorilla/mux"
 
 	"github.com/egor1344/banner/rotation_banner/internal/domain/models"
@@ -20,7 +22,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-var restService *RestBannerServer
+var restService *BannerServerRest
 var pgbs *postgres.PgBannerStorage
 
 func TestMain(t *testing.M) {
@@ -39,12 +41,19 @@ func TestMain(t *testing.M) {
 		log.Logger.Error("databases error", err)
 	}
 	database.Log = log.Logger
-	bannerService := &services.Banner{Database: database, Log: log.Logger}
-	restService = &RestBannerServer{Log: log.Logger, BannerService: bannerService}
+	// Инициализация очереди событий
+	rabbit := &amqp.Rabbit{AMQPDSN: viper.GetString("AMQP_DSN"), QueueName: viper.GetString("QUEUE_NAME")}
+	rabbit.Log = log.Logger
+	err = rabbit.Init()
+	if err != nil {
+		log.Logger.Error("amqp error ", err)
+	}
+	bannerService := &services.Banner{Database: database, Log: log.Logger, AMQP: rabbit}
+	restService = &BannerServerRest{Log: log.Logger, BannerService: bannerService}
 	os.Exit(t.Run())
 }
 
-func TestRestBannerServer_AddBannerHandler(t *testing.T) {
+func TestBannerServerRest_AddBannerHandler(t *testing.T) {
 	tests.TruncateDb(t, pgbs.DB)
 	restService.Log.Info("Проверка функционала")
 	body := []byte(`{ "id_banner": 1, "id_slot": 1}`)
@@ -60,7 +69,7 @@ func TestRestBannerServer_AddBannerHandler(t *testing.T) {
 	}
 }
 
-func TestRestBannerServer_DelBannerHandler(t *testing.T) {
+func TestBannerServerRest_DelBannerHandler(t *testing.T) {
 	tests.TruncateDb(t, pgbs.DB)
 	_, err := pgbs.DB.Exec(`
 		INSERT INTO public.banners (id) VALUES (1);
@@ -101,16 +110,16 @@ func TestRestBannerServer_DelBannerHandler(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if rotation.IdSlot != c.idSlot {
-			t.Error("rotation id slot = ", rotation.IdSlot, " must be = ", c.idSlot)
+		if rotation.IDSlot != c.idSlot {
+			t.Error("rotation id slot = ", rotation.IDSlot, " must be = ", c.idSlot)
 		}
-		if rotation.IdBanner != c.idBanner {
-			t.Error("rotation id banner = ", rotation.IdBanner, " must be = ", c.idBanner)
+		if rotation.IDBanner != c.idBanner {
+			t.Error("rotation id banner = ", rotation.IDBanner, " must be = ", c.idBanner)
 		}
 	}
 }
 
-func TestRestBannerServer_CountTransitionHandler(t *testing.T) {
+func TestBannerServerRest_CountTransitionHandler(t *testing.T) {
 	tests.TruncateDb(t, pgbs.DB)
 	_, err := pgbs.DB.Exec(`
 		INSERT INTO public.banners (id) VALUES (1);
@@ -142,14 +151,14 @@ func TestRestBannerServer_CountTransitionHandler(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if rotation.IdSlot != c.idSlot {
-			t.Error("rotation id slot = ", rotation.IdSlot, " must be = ", c.idSlot)
+		if rotation.IDSlot != c.idSlot {
+			t.Error("rotation id slot = ", rotation.IDSlot, " must be = ", c.idSlot)
 		}
-		if rotation.IdBanner != c.idBanner {
-			t.Error("rotation id banner = ", rotation.IdBanner, " must be = ", c.idBanner)
+		if rotation.IDBanner != c.idBanner {
+			t.Error("rotation id banner = ", rotation.IDBanner, " must be = ", c.idBanner)
 		}
-		if rotation.IdSocDemGroup != c.idSocDemGroup {
-			t.Error("rotation id soc dem group = ", rotation.IdSocDemGroup, " must be = ", c.idSocDemGroup)
+		if rotation.IDSocDemGroup != c.idSocDemGroup {
+			t.Error("rotation id soc dem group = ", rotation.IDSocDemGroup, " must be = ", c.idSocDemGroup)
 		}
 		if rotation.CountClick != c.countClick {
 			t.Error("rotation count click = ", rotation.CountClick, " must be = ", c.countClick)
@@ -160,7 +169,7 @@ func TestRestBannerServer_CountTransitionHandler(t *testing.T) {
 	}
 }
 
-func TestRestBannerServer_GetBannerHandler(t *testing.T) {
+func TestBannerServerRest_GetBannerHandler(t *testing.T) {
 	tests.TruncateDb(t, pgbs.DB)
 	_, err := pgbs.DB.Exec(`
 		INSERT INTO public.banners (id) VALUES (1);
@@ -204,14 +213,14 @@ func TestRestBannerServer_GetBannerHandler(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if rotation.IdSlot != c.idSlot {
-			t.Error("rotation id slot = ", rotation.IdSlot, " must be = ", c.idSlot)
+		if rotation.IDSlot != c.idSlot {
+			t.Error("rotation id slot = ", rotation.IDSlot, " must be = ", c.idSlot)
 		}
-		if rotation.IdBanner != c.idBanner {
-			t.Error("rotation id banner = ", rotation.IdBanner, " must be = ", c.idBanner)
+		if rotation.IDBanner != c.idBanner {
+			t.Error("rotation id banner = ", rotation.IDBanner, " must be = ", c.idBanner)
 		}
-		if rotation.IdSocDemGroup != c.idSocDemGroup {
-			t.Error("rotation id soc dem group = ", rotation.IdSocDemGroup, " must be = ", c.idSocDemGroup)
+		if rotation.IDSocDemGroup != c.idSocDemGroup {
+			t.Error("rotation id soc dem group = ", rotation.IDSocDemGroup, " must be = ", c.idSocDemGroup)
 		}
 		if rotation.CountClick != c.countClick {
 			t.Error("rotation count click = ", rotation.CountClick, " must be = ", c.countClick)

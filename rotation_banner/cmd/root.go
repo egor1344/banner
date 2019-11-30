@@ -29,6 +29,6 @@ var RootCmd = &cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(api.GrpcServerCmd)
-	RootCmd.AddCommand(api.RestApiServerCmd)
+	RootCmd.AddCommand(api.RestAPIServerCmd)
 	RootCmd.AddCommand(MetricsCMD)
 }

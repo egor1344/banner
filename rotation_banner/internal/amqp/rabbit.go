@@ -9,11 +9,13 @@ import (
 	"github.com/streadway/amqp"
 )
 
+// Event - структура события
 type Event struct {
 	typeEvent                       string
 	idBanner, idSocDemGroup, idSlot int64
 }
 
+// Rabbit - структура события
 type Rabbit struct {
 	Log                *zap.SugaredLogger // Логгер
 	connection         *amqp.Connection
@@ -50,10 +52,14 @@ func (r *Rabbit) Init() error {
 // Close - инициализация подключения к rabbitmq
 func (r *Rabbit) Close() {
 	r.Log.Info("Closing connection")
-	r.channel.Close()
-	r.connection.Close()
+	err := r.channel.Close()
+	err = r.connection.Close()
+	if err != nil {
+		return
+	}
 }
 
+// AddEvent - добавление события
 func (r *Rabbit) AddEvent(ctx context.Context, typeEvent string, idBanner, idSocDemGroup, idSlot int64) error {
 	body := &Event{typeEvent: typeEvent, idSocDemGroup: idSocDemGroup, idSlot: idSlot, idBanner: idBanner}
 	b, err := json.Marshal(body)

@@ -15,7 +15,7 @@ import (
 )
 
 // initRestServer - инициализация grpc сервера
-func initRestServer() (*rest.RestBannerServer, error) {
+func initRestServer() (*rest.BannerServerRest, error) {
 	log.Logger.Info("initGrpcServer")
 	dbDsn := viper.GetString("DB_DSN")
 	if dbDsn == "" {
@@ -34,12 +34,18 @@ func initRestServer() (*rest.RestBannerServer, error) {
 		log.Logger.Error("amqp error ", err)
 	}
 	grpcService := services.Banner{Database: database, Log: log.Logger, AMQP: rabbit}
-	return &rest.RestBannerServer{BannerService: &grpcService, Log: log.Logger}, nil
+	return &rest.BannerServerRest{BannerService: &grpcService, Log: log.Logger}, nil
 }
 
+// RunRestServer - инициализация rest сервера
 func RunRestServer(c chan bool) {
 	log.Logger.Info("run rest api server")
 	restServer, err := initRestServer()
+	if restServer == nil {
+		c <- true
+		log.Logger.Fatal("Error run server")
+		return
+	}
 	defer restServer.BannerService.CloseConnection()
 	if err != nil {
 		log.Logger.Error("error run rest server ", err)
@@ -50,7 +56,8 @@ func RunRestServer(c chan bool) {
 	c <- true
 }
 
-var RestApiServerCmd = &cobra.Command{
+// RestAPIServerCmd - Комманда для cobra
+var RestAPIServerCmd = &cobra.Command{
 	Use:   "rest_api_server",
 	Short: "run rest api server",
 	Run: func(cmd *cobra.Command, args []string) {

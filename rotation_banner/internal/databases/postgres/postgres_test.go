@@ -26,6 +26,7 @@ func TestMain(t *testing.M) {
 	pgbs, err = InitPgBannerStorage(dbDsn)
 	if pgbs == nil {
 		log.Fatal(err)
+		return
 	}
 	pgbs.Log = logger.Logger
 	if err != nil {
@@ -77,11 +78,11 @@ func TestPgBannerStorage_AddBanner(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if rotation.IdSlot != c.idSlot {
-			t.Error("rotation id slot = ", rotation.IdSlot, " must be = ", c.idSlot)
+		if rotation.IDSlot != c.idSlot {
+			t.Error("rotation id slot = ", rotation.IDSlot, " must be = ", c.idSlot)
 		}
-		if rotation.IdBanner != c.idBanner {
-			t.Error("rotation id banner = ", rotation.IdBanner, " must be = ", c.idBanner)
+		if rotation.IDBanner != c.idBanner {
+			t.Error("rotation id banner = ", rotation.IDBanner, " must be = ", c.idBanner)
 		}
 	}
 }
@@ -115,11 +116,11 @@ func TestPgBannerStorage_DelBanner(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if rotation.IdSlot != c.idSlot {
-			t.Error("rotation id slot = ", rotation.IdSlot, " must be = ", c.idSlot)
+		if rotation.IDSlot != c.idSlot {
+			t.Error("rotation id slot = ", rotation.IDSlot, " must be = ", c.idSlot)
 		}
-		if rotation.IdBanner != c.idBanner {
-			t.Error("rotation id banner = ", rotation.IdBanner, " must be = ", c.idBanner)
+		if rotation.IDBanner != c.idBanner {
+			t.Error("rotation id banner = ", rotation.IDBanner, " must be = ", c.idBanner)
 		}
 	}
 }
@@ -152,14 +153,14 @@ func TestPgBannerStorage_CountTransition(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if rotation.IdSlot != c.idSlot {
-			t.Error("rotation id slot = ", rotation.IdSlot, " must be = ", c.idSlot)
+		if rotation.IDSlot != c.idSlot {
+			t.Error("rotation id slot = ", rotation.IDSlot, " must be = ", c.idSlot)
 		}
-		if rotation.IdBanner != c.idBanner {
-			t.Error("rotation id banner = ", rotation.IdBanner, " must be = ", c.idBanner)
+		if rotation.IDBanner != c.idBanner {
+			t.Error("rotation id banner = ", rotation.IDBanner, " must be = ", c.idBanner)
 		}
-		if rotation.IdSocDemGroup != c.idSocDemGroup {
-			t.Error("rotation id soc dem group = ", rotation.IdSocDemGroup, " must be = ", c.idSocDemGroup)
+		if rotation.IDSocDemGroup != c.idSocDemGroup {
+			t.Error("rotation id soc dem group = ", rotation.IDSocDemGroup, " must be = ", c.idSocDemGroup)
 		}
 		if rotation.CountClick != c.countClick {
 			t.Error("rotation count click = ", rotation.CountClick, " must be = ", c.countClick)
@@ -207,14 +208,14 @@ func TestPgBannerStorage_GetBanner(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if rotation.IdSlot != c.idSlot {
-			t.Error("rotation id slot = ", rotation.IdSlot, " must be = ", c.idSlot)
+		if rotation.IDSlot != c.idSlot {
+			t.Error("rotation id slot = ", rotation.IDSlot, " must be = ", c.idSlot)
 		}
-		if rotation.IdBanner != c.idBanner {
-			t.Error("rotation id banner = ", rotation.IdBanner, " must be = ", c.idBanner)
+		if rotation.IDBanner != c.idBanner {
+			t.Error("rotation id banner = ", rotation.IDBanner, " must be = ", c.idBanner)
 		}
-		if rotation.IdSocDemGroup != c.idSocDemGroup {
-			t.Error("rotation id soc dem group = ", rotation.IdSocDemGroup, " must be = ", c.idSocDemGroup)
+		if rotation.IDSocDemGroup != c.idSocDemGroup {
+			t.Error("rotation id soc dem group = ", rotation.IDSocDemGroup, " must be = ", c.idSocDemGroup)
 		}
 		if rotation.CountClick != c.countClick {
 			t.Error("rotation count click = ", rotation.CountClick, " must be = ", c.countClick)

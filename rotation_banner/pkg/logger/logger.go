@@ -1,10 +1,12 @@
 package logger
 
 import (
-	"go.uber.org/zap"
 	"log"
+
+	"go.uber.org/zap"
 )
 
+// Logger - алиас для быстрого доступа
 var Logger *zap.SugaredLogger
 
 func init() {
@@ -15,7 +17,7 @@ func init() {
 	}
 }
 
-// Инициализация логера
+// InitLogger - Инициализация логера
 func InitLogger() (*zap.SugaredLogger, error) {
 	logger, err := zap.NewProduction()
 	if err != nil {
@@ -23,11 +25,4 @@ func InitLogger() (*zap.SugaredLogger, error) {
 	}
 	Logger = logger.Sugar()
 	return Logger, nil
-}
-
-func GetLogger() (*zap.SugaredLogger, error) {
-	if Logger != nil {
-		return Logger, nil
-	}
-	return InitLogger()
 }

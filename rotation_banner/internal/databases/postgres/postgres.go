@@ -1,11 +1,14 @@
-/* Пакет для работы с БД Postgres */
 package postgres
+
+/* Пакет для работы с БД Postgres */
 
 import (
 	"context"
 
+	"github.com/prometheus/common/log"
+
 	"github.com/egor1344/banner/rotation_banner/pkg/ucb1"
-	_ "github.com/jackc/pgx/stdlib"
+	_ "github.com/jackc/pgx/stdlib" // stdlib
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
 )
@@ -43,7 +46,6 @@ func (pgbs *PgBannerStorage) existsBanner(ctx context.Context, idBanner int64, c
 			if err != nil {
 				pgbs.Log.Error(err)
 			}
-			return true, nil
 		} else {
 			return false, nil
 		}
@@ -65,7 +67,6 @@ func (pgbs *PgBannerStorage) existsSlot(ctx context.Context, idSlot int64, creat
 			if err != nil {
 				pgbs.Log.Error(err)
 			}
-			return true, nil
 		} else {
 			return false, nil
 		}
@@ -87,7 +88,6 @@ func (pgbs *PgBannerStorage) existsSocDemGroup(ctx context.Context, idSocDemGrou
 			if err != nil {
 				pgbs.Log.Error(err)
 			}
-			return true, nil
 		} else {
 			return false, nil
 		}
@@ -110,7 +110,6 @@ func (pgbs *PgBannerStorage) existsStatistic(ctx context.Context, idBanner, idSo
 			if err != nil {
 				pgbs.Log.Error(err)
 			}
-			return true, nil
 		} else {
 			return false, nil
 		}
@@ -232,7 +231,7 @@ func (pgbs *PgBannerStorage) GetBanner(ctx context.Context, idSlot, idSocDemGrou
 		pgbs.Log.Error("error get banner ", err)
 	}
 	var s struct {
-		IdBanner      int64 `db:"id_banner"`
+		IDBanner      int64 `db:"id_banner"`
 		CountClick    int64 `db:"count_click"`
 		CountView     int64 `db:"count_views"`
 		AllCountViews int64 `db:"all_count_views"`
@@ -240,7 +239,7 @@ func (pgbs *PgBannerStorage) GetBanner(ctx context.Context, idSlot, idSocDemGrou
 	var lbs ucb1.ListBannerStatistic
 	for rows.Next() {
 		err = rows.StructScan(&s)
-		lbs.Objects = append(lbs.Objects, &ucb1.BannerStatistic{CountClick: s.CountClick, ID: s.IdBanner, CountDisplay: s.CountView})
+		lbs.Objects = append(lbs.Objects, &ucb1.BannerStatistic{CountClick: s.CountClick, ID: s.IDBanner, CountDisplay: s.CountView})
 	}
 	lbs.AllCountDisplay = s.AllCountViews
 	id, err := lbs.GetRelevantObject()
@@ -258,5 +257,8 @@ func (pgbs *PgBannerStorage) GetBanner(ctx context.Context, idSlot, idSocDemGrou
 
 // Close - Увеличение количества показов в статистике
 func (pgbs *PgBannerStorage) Close() {
-	pgbs.DB.Close()
+	err := pgbs.DB.Close()
+	if err != nil {
+		log.Error(err)
+	}
 }

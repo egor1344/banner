@@ -71,7 +71,7 @@ func TestShowAll(t *testing.T) {
 			{5, 1, 1},
 		}, 5,
 	}
-	mapId := make(map[int64]int)
+	mapID := make(map[int64]int)
 	for i := 0; i <= 100; i++ {
 		IDObject, err := bannerList.GetRelevantObject()
 		if err != nil {
@@ -81,10 +81,10 @@ func TestShowAll(t *testing.T) {
 		bannerList.AllCountDisplay++
 		//log.Println(bannerList.Objects[0], bannerList.Objects[1], bannerList.Objects[2], bannerList.Objects[3], bannerList.Objects[4])
 		//log.Println(bannerList.AllCountDisplay)
-		mapId[IDObject]++
+		mapID[IDObject]++
 
 	}
-	for _, value := range mapId {
+	for _, value := range mapID {
 		if value <= 1 {
 			t.Error("banner not show")
 		}
@@ -102,7 +102,7 @@ func TestShowPopular(t *testing.T) {
 			{5, 26, 35},
 		}, 125,
 	}
-	mapId := make(map[int64]int)
+	mapID := make(map[int64]int)
 	for i := 0; i <= 100; i++ {
 		IDObject, err := bannerList.GetRelevantObject()
 		if err != nil {
@@ -112,18 +112,18 @@ func TestShowPopular(t *testing.T) {
 		bannerList.AllCountDisplay++
 		//log.Println(bannerList.Objects[0], bannerList.Objects[1], bannerList.Objects[2], bannerList.Objects[3], bannerList.Objects[4])
 		//log.Println(bannerList.AllCountDisplay)
-		mapId[IDObject]++
+		mapID[IDObject]++
 	}
-	log.Println(mapId)
+	log.Println(mapID)
 	var maxValue int
-	var maxId int64
-	for id, value := range mapId {
+	var maxID int64
+	for id, value := range mapID {
 		if maxValue <= value {
 			maxValue = value
-			maxId = id
+			maxID = id
 		}
 	}
-	if maxId != 1 && maxValue != 30 {
+	if maxID != 1 && maxValue != 30 {
 		t.Error("Wrong id or value show popular banner")
 	}
 }

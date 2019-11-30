@@ -5,18 +5,18 @@ import (
 	"math"
 )
 
-// Объект для расчетов
+// BannerStatistic -Объект для расчетов
 type BannerStatistic struct {
 	ID, CountClick, CountDisplay int64
 }
 
-// Список объектов для расчетов
+// ListBannerStatistic - Список объектов для расчетов
 type ListBannerStatistic struct {
 	Objects         []*BannerStatistic
 	AllCountDisplay int64
 }
 
-// Алгоритм расчета для показа баннера
+// UCB - Алгоритм расчета для показа баннера
 func UCB(object *BannerStatistic, allCountDisplay int64) (result float64, err error) {
 	/*
 		object           - статистика баннера
@@ -34,7 +34,7 @@ func UCB(object *BannerStatistic, allCountDisplay int64) (result float64, err er
 	return
 }
 
-// Получение одного релевантного объекта из списка
+// GetRelevantObject - Получение одного релевантного объекта из списка
 func (lo *ListBannerStatistic) GetRelevantObject() (id int64, err error) {
 	if len(lo.Objects) == 0 {
 		return 0, errors.New("blank object list")

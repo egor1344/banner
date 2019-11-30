@@ -15,7 +15,7 @@ import (
 )
 
 // initGrpcServer - инициализация grpc сервера
-func initGrpcServer() (*grpc.GrpcBannerServer, error) {
+func initGrpcServer() (*grpc.BannerServerGrpc, error) {
 	log.Logger.Info("initGrpcServer")
 	dbDsn := viper.GetString("DB_DSN")
 	if dbDsn == "" {
@@ -34,12 +34,18 @@ func initGrpcServer() (*grpc.GrpcBannerServer, error) {
 		log.Logger.Error("amqp error ", err)
 	}
 	grpcService := services.Banner{Database: database, Log: log.Logger, AMQP: rabbit}
-	return &grpc.GrpcBannerServer{BannerService: &grpcService, Log: log.Logger}, nil
+	return &grpc.BannerServerGrpc{BannerService: &grpcService, Log: log.Logger}, nil
 }
 
+// RunGrpcServer - запуск grpc сервера
 func RunGrpcServer(c chan bool) {
 	log.Logger.Info("run grpc server")
 	grpcServer, err := initGrpcServer()
+	if grpcServer == nil {
+		c <- true
+		log.Logger.Fatal("Error run server")
+		return
+	}
 	defer grpcServer.BannerService.CloseConnection()
 	if err != nil {
 		log.Logger.Fatal(err)
@@ -54,6 +60,7 @@ func RunGrpcServer(c chan bool) {
 	}
 }
 
+// GrpcServerCmd - Комманда для cobra
 var GrpcServerCmd = &cobra.Command{
 	Use:   "grpc_server",
 	Short: "run grpc server",

@@ -11,6 +11,7 @@ require (
 	github.com/jackc/pgx v3.6.0+incompatible
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/prometheus/client_golang v0.9.3
+	github.com/prometheus/common v0.4.0
 	github.com/shopspring/decimal v0.0.0-20191009025716-f1972eb1d1f5 // indirect
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/viper v1.5.0

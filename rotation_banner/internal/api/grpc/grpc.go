@@ -12,16 +12,16 @@ import (
 	"google.golang.org/grpc"
 )
 
-// GrpcBannerServer - Реализует работу с grpc сервером.
-type GrpcBannerServer struct {
+// BannerServerGrpc - Реализует работу с grpc сервером.
+type BannerServerGrpc struct {
 	BannerService interfaces.Service
 	Log           *zap.SugaredLogger
 }
 
 // AddBanner - Добавить баннер
-func (gbs *GrpcBannerServer) AddBanner(ctx context.Context, in *server.AddBannerRequest) (*server.AddBannerResponse, error) {
+func (gbs *BannerServerGrpc) AddBanner(ctx context.Context, in *server.AddBannerRequest) (*server.AddBannerResponse, error) {
 	gbs.Log.Info("grpc add banner")
-	metrics.ApiCounter.Inc()
+	metrics.APICounter.Inc()
 	metrics.AddBannerGrpcCounter.Inc()
 	banner := in.GetBanner()
 	err := gbs.BannerService.AddBanner(ctx, banner.Id, banner.Slot.Id)
@@ -32,9 +32,9 @@ func (gbs *GrpcBannerServer) AddBanner(ctx context.Context, in *server.AddBanner
 }
 
 // DelBanner - Удалить баннер
-func (gbs *GrpcBannerServer) DelBanner(ctx context.Context, in *server.DelBannerRequest) (*server.DelBannerResponse, error) {
+func (gbs *BannerServerGrpc) DelBanner(ctx context.Context, in *server.DelBannerRequest) (*server.DelBannerResponse, error) {
 	gbs.Log.Info("grpc del banner")
-	metrics.ApiCounter.Inc()
+	metrics.APICounter.Inc()
 	metrics.DelBannerGrpcCounter.Inc()
 	bannerID := in.GetId()
 	err := gbs.BannerService.DelBanner(ctx, bannerID)
@@ -45,14 +45,14 @@ func (gbs *GrpcBannerServer) DelBanner(ctx context.Context, in *server.DelBanner
 }
 
 // CountTransition - Засчитать переход
-func (gbs *GrpcBannerServer) CountTransition(ctx context.Context, in *server.CountTransitionRequest) (*server.CountTransitionResponse, error) {
+func (gbs *BannerServerGrpc) CountTransition(ctx context.Context, in *server.CountTransitionRequest) (*server.CountTransitionResponse, error) {
 	gbs.Log.Info("grpc count transition")
-	metrics.ApiCounter.Inc()
+	metrics.APICounter.Inc()
 	metrics.CountTransitionGrpcCounter.Inc()
-	bannerId := in.GetIdBanner()
-	socDemGroupId := in.GetIdSocDemGroup()
-	slotId := in.GetIdSlot()
-	err := gbs.BannerService.CountTransition(ctx, bannerId, socDemGroupId, slotId)
+	bannerID := in.GetIdBanner()
+	socDemGroupID := in.GetIdSocDemGroup()
+	slotID := in.GetIdSlot()
+	err := gbs.BannerService.CountTransition(ctx, bannerID, socDemGroupID, slotID)
 	if err != nil {
 		return &server.CountTransitionResponse{Result: &server.CountTransitionResponse_Error{Error: "Error"}}, err
 	}
@@ -61,29 +61,30 @@ func (gbs *GrpcBannerServer) CountTransition(ctx context.Context, in *server.Cou
 }
 
 // GetBanner - Выбрать баннер для показа
-func (gbs *GrpcBannerServer) GetBanner(ctx context.Context, in *server.GetBannerRequest) (*server.GetBannerResponse, error) {
+func (gbs *BannerServerGrpc) GetBanner(ctx context.Context, in *server.GetBannerRequest) (*server.GetBannerResponse, error) {
 	gbs.Log.Info("grpc get banner")
-	metrics.ApiCounter.Inc()
+	metrics.APICounter.Inc()
 	metrics.GetBannerGrpcCounter.Inc()
-	socDemGroupId := in.GetIdSocDemGroup()
-	slotId := in.GetIdSlot()
-	bannerId, err := gbs.BannerService.GetBanner(ctx, slotId, socDemGroupId)
+	socDemGroupID := in.GetIdSocDemGroup()
+	slotID := in.GetIdSlot()
+	bannerID, err := gbs.BannerService.GetBanner(ctx, slotID, socDemGroupID)
 	if err != nil {
 		return &server.GetBannerResponse{Result: &server.GetBannerResponse_Error{Error: "Error"}}, err
 	}
-	return &server.GetBannerResponse{Result: &server.GetBannerResponse_IdBanner{IdBanner: bannerId}}, nil
+	return &server.GetBannerResponse{Result: &server.GetBannerResponse_IdBanner{IdBanner: bannerID}}, nil
 
 }
 
-func (gbs *GrpcBannerServer) RunServer(network, address string) error {
+// RunServer - запуск сервера
+func (gbs *BannerServerGrpc) RunServer(network, address string) error {
 	gbs.Log.Info("run grpc server")
 	conn, err := net.Listen(network, address)
 	if err != nil {
 		gbs.Log.Error("error net listen", err)
 	}
-	grpc_server := grpc.NewServer()
-	server.RegisterRotationBannerServer(grpc_server, gbs)
-	err = grpc_server.Serve(conn)
+	grpcServer := grpc.NewServer()
+	server.RegisterRotationBannerServer(grpcServer, gbs)
+	err = grpcServer.Serve(conn)
 	if err != nil {
 		gbs.Log.Error("error serve connection", err)
 	}

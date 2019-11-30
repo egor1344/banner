@@ -17,6 +17,13 @@ test_api_rest:
 
 test: test_ucb test_postgres test_api_grpc test_api_rest
 
+check_govet:
+	CGO_ENABLED=0 go vet ./...
+
+check_golint:
+	CGO_ENABLED=0 golint ./...
+
+check: check_golint check_govet
 
 run_grpc_server:
 	go run main.go grpc_server
