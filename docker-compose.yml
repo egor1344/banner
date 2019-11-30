@@ -17,6 +17,9 @@ services:
     build:
       context: ./rotation_banner
     restart: unless-stopped
+    depends_on:
+      - db
+      - rabbitmq
     volumes:
       - ./rotation_banner:/app:cached
     command: make run

@@ -63,7 +63,10 @@ alter table statistic
 create unique index statistic_id_uindex
     on statistic (id);
 
-create table mtm_slot_banners
+create unique index statistic_id_banner_id_slot_id_soc_dem_uindex
+    on statistic (id_banner, id_slot, id_soc_dem);
+
+create table rotations
 (
     id        serial  not null
         constraint mtm_slot_banners_pk
@@ -83,4 +86,7 @@ alter table rotations
 
 create unique index mtm_slot_banners_id_uindex
     on rotations (id);
+
+create unique index rotations_id_banner_id_slot_uindex
+    on rotations (id_banner, id_slot);
 

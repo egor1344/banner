@@ -18,6 +18,9 @@ services:
       context: ./rotation_banner
     restart: unless-stopped
     command: wait-for db:5432 -t 10 -- make run
+    depends_on:
+      - db
+      - rabbitmq
     volumes:
       - ./rotation_banner:/app:cached
     ports:

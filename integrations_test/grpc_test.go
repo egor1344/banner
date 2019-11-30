@@ -20,7 +20,6 @@ func (test *ServerTest) iAddBannerGprcrequestTo(arg1 string) error {
 	if err != nil {
 		log.Fatal("Error connect to grpc server ", arg1, err)
 	}
-	defer conn.Close()
 	client := server.NewRotationBannerClient(conn)
 	test.Client = client
 	req := &server.AddBannerRequest{Banner: &banner.Banner{Id: 1, Slot: &slot.Slot{Id: 1}, Description: "Test banner"}}
@@ -29,6 +28,10 @@ func (test *ServerTest) iAddBannerGprcrequestTo(arg1 string) error {
 		return err
 	}
 	test.addBannerResponse = resp
+	err = conn.Close()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -51,7 +54,6 @@ func (test *ServerTest) iDelBannerGprcrequestTo(arg1 string) error {
 	if err != nil {
 		log.Fatal("Error connect to grpc server ", arg1, err)
 	}
-	defer conn.Close()
 	client := server.NewRotationBannerClient(conn)
 	test.Client = client
 	req := &server.DelBannerRequest{Id: 1}
@@ -60,6 +62,10 @@ func (test *ServerTest) iDelBannerGprcrequestTo(arg1 string) error {
 		return err
 	}
 	test.delBannerResponse = resp
+	err = conn.Close()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -82,7 +88,6 @@ func (test *ServerTest) iCountTransitionBannerGprcrequestTo(arg1 string) error {
 	if err != nil {
 		log.Fatal("Error connect to grpc server ", arg1, err)
 	}
-	defer conn.Close()
 	client := server.NewRotationBannerClient(conn)
 	test.Client = client
 	req := &server.CountTransitionRequest{IdBanner: 1, IdSocDemGroup: 1, IdSlot: 1}
@@ -91,6 +96,10 @@ func (test *ServerTest) iCountTransitionBannerGprcrequestTo(arg1 string) error {
 		return err
 	}
 	test.countTransitionResponse = resp
+	err = conn.Close()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -113,7 +122,6 @@ func (test *ServerTest) iGetBannerBannerGprcrequestTo(arg1 string) error {
 	if err != nil {
 		log.Fatal("Error connect to grpc server ", arg1, err)
 	}
-	defer conn.Close()
 	client := server.NewRotationBannerClient(conn)
 	test.Client = client
 	req := &server.GetBannerRequest{IdSocDemGroup: 1, IdSlot: 1}
@@ -122,10 +130,14 @@ func (test *ServerTest) iGetBannerBannerGprcrequestTo(arg1 string) error {
 		return err
 	}
 	test.getBannerResponse = resp
+	err = conn.Close()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
-func (test *ServerTest) theResponseMustContainIdBanner() error {
+func (test *ServerTest) theResponseMustContainIDBanner() error {
 	resp := test.getBannerResponse
 	err := resp.GetError()
 	if err != "" {
@@ -152,5 +164,5 @@ func GrpcContext(s *godog.Suite) {
 	s.Step(`^I count transition banner gprc-request to "([^"]*)"$`, test.iCountTransitionBannerGprcrequestTo)
 	s.Step(`^The response count transition must contain status$`, test.theResponseCountTransitionMustContainStatus)
 	s.Step(`^I Get banner banner gprc-request to "([^"]*)"$`, test.iGetBannerBannerGprcrequestTo)
-	s.Step(`^The response must contain id banner$`, test.theResponseMustContainIdBanner)
+	s.Step(`^The response must contain id banner$`, test.theResponseMustContainIDBanner)
 }

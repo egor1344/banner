@@ -22,13 +22,19 @@ func (test *ServerTest) iAddBannerRestrequestTo(arg1 string) error {
 	}
 	client := http.Client{}
 	res, err := client.Do(req)
-	defer res.Body.Close()
+	if res == nil {
+		return errors.New("nil response")
+	}
 	body, _ = ioutil.ReadAll(res.Body)
 	test.responseBody = body
+	err = res.Body.Close()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
-func (test *ServerTest) theJsonResponseAddBannerMustContainStatus() error {
+func (test *ServerTest) theJSONResponseAddBannerMustContainStatus() error {
 	if string(test.responseBody) != `{"status": true}` {
 		return errors.New("wrong status")
 	}
@@ -46,13 +52,19 @@ func (test *ServerTest) iDelBannerRestrequestTo(arg1 string) error {
 	}
 	client := http.Client{}
 	res, err := client.Do(req)
-	defer res.Body.Close()
+	if res == nil {
+		return errors.New("nil response")
+	}
 	body, _ := ioutil.ReadAll(res.Body)
 	test.responseBody = body
+	err = res.Body.Close()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
-func (test *ServerTest) theJsonResponseDelBannerMustContainStatus() error {
+func (test *ServerTest) theJSONResponseDelBannerMustContainStatus() error {
 	if string(test.responseBody) != `{"status": true}` {
 		return errors.New("wrong status")
 	}
@@ -70,13 +82,19 @@ func (test *ServerTest) iCountTransitionBannerRestrequestTo(arg1 string) error {
 	}
 	client := http.Client{}
 	res, err := client.Do(req)
-	defer res.Body.Close()
+	if res == nil {
+		return errors.New("nil response")
+	}
 	body, _ = ioutil.ReadAll(res.Body)
 	test.responseBody = body
+	err = res.Body.Close()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
-func (test *ServerTest) theJsonResponseCountTransitionMustContainStatus() error {
+func (test *ServerTest) theJSONResponseCountTransitionMustContainStatus() error {
 	if string(test.responseBody) != `{"status": true}` {
 		return errors.New("wrong status")
 	}
@@ -94,13 +112,19 @@ func (test *ServerTest) iGetBannerBannerRestrequestTo(arg1 string) error {
 	}
 	client := http.Client{}
 	res, err := client.Do(req)
-	defer res.Body.Close()
+	if res == nil {
+		return errors.New("nil response")
+	}
 	body, _ := ioutil.ReadAll(res.Body)
 	test.responseBody = body
+	err = res.Body.Close()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
-func (test *ServerTest) theJsonResponseMustContainIdBanner() error {
+func (test *ServerTest) theJSONResponseMustContainIDBanner() error {
 	if string(test.responseBody) != `{"status": true,"id_banner": 1}` {
 		return errors.New("wrong status")
 	}
@@ -115,11 +139,11 @@ func RestContext(s *godog.Suite) {
 	s.AfterFeature(test.truncateDb)
 
 	s.Step(`^I add banner rest-request to "([^"]*)"$`, test.iAddBannerRestrequestTo)
-	s.Step(`^The json response add banner must contain status$`, test.theJsonResponseAddBannerMustContainStatus)
+	s.Step(`^The json response add banner must contain status$`, test.theJSONResponseAddBannerMustContainStatus)
 	s.Step(`^I del banner rest-request to "([^"]*)"$`, test.iDelBannerRestrequestTo)
-	s.Step(`^The json response del banner must contain status$`, test.theJsonResponseDelBannerMustContainStatus)
+	s.Step(`^The json response del banner must contain status$`, test.theJSONResponseDelBannerMustContainStatus)
 	s.Step(`^I count transition banner rest-request to "([^"]*)"$`, test.iCountTransitionBannerRestrequestTo)
-	s.Step(`^The json response  count transition must contain status$`, test.theJsonResponseCountTransitionMustContainStatus)
+	s.Step(`^The json response  count transition must contain status$`, test.theJSONResponseCountTransitionMustContainStatus)
 	s.Step(`^I Get banner banner rest-request to "([^"]*)"$`, test.iGetBannerBannerRestrequestTo)
-	s.Step(`^The json response must contain id banner$`, test.theJsonResponseMustContainIdBanner)
+	s.Step(`^The json response must contain id banner$`, test.theJSONResponseMustContainIDBanner)
 }
