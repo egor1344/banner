@@ -1,6 +1,9 @@
 package ucb1
 
-import "testing"
+import (
+	"log"
+	"testing"
+)
 
 func TestUCB(t *testing.T) {
 	cases := []struct {
@@ -54,5 +57,73 @@ func TestUCBList(t *testing.T) {
 		if IDObject != c.result {
 			t.Error("Error. usb_result = ", IDObject, ". Result must be ", c.result)
 		}
+	}
+}
+
+// TestShowAll - Перебор всех
+func TestShowAll(t *testing.T) {
+	bannerList := &ListBannerStatistic{
+		[]*BannerStatistic{
+			{1, 1, 1},
+			{2, 1, 1},
+			{3, 1, 1},
+			{4, 1, 1},
+			{5, 1, 1},
+		}, 5,
+	}
+	mapId := make(map[int64]int)
+	for i := 0; i <= 100; i++ {
+		IDObject, err := bannerList.GetRelevantObject()
+		if err != nil {
+			t.Error("Error.", err)
+		}
+		bannerList.Objects[IDObject-1].CountDisplay++
+		bannerList.AllCountDisplay++
+		//log.Println(bannerList.Objects[0], bannerList.Objects[1], bannerList.Objects[2], bannerList.Objects[3], bannerList.Objects[4])
+		//log.Println(bannerList.AllCountDisplay)
+		mapId[IDObject]++
+
+	}
+	for _, value := range mapId {
+		if value <= 1 {
+			t.Error("banner not show")
+		}
+	}
+}
+
+// TestShowPopular - Перебор всех
+func TestShowPopular(t *testing.T) {
+	bannerList := &ListBannerStatistic{
+		[]*BannerStatistic{
+			{1, 14, 15},
+			{2, 18, 20},
+			{3, 22, 25},
+			{4, 23, 30},
+			{5, 26, 35},
+		}, 125,
+	}
+	mapId := make(map[int64]int)
+	for i := 0; i <= 100; i++ {
+		IDObject, err := bannerList.GetRelevantObject()
+		if err != nil {
+			t.Error("Error.", err)
+		}
+		bannerList.Objects[IDObject-1].CountDisplay++
+		bannerList.AllCountDisplay++
+		//log.Println(bannerList.Objects[0], bannerList.Objects[1], bannerList.Objects[2], bannerList.Objects[3], bannerList.Objects[4])
+		//log.Println(bannerList.AllCountDisplay)
+		mapId[IDObject]++
+	}
+	log.Println(mapId)
+	var maxValue int
+	var maxId int64
+	for id, value := range mapId {
+		if maxValue <= value {
+			maxValue = value
+			maxId = id
+		}
+	}
+	if maxId != 1 && maxValue != 30 {
+		t.Error("Wrong id or value show popular banner")
 	}
 }

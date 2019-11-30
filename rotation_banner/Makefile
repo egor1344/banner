@@ -24,7 +24,6 @@ run_grpc_server:
 run_rest_api_server:
 	go run main.go rest_api_server
 
-#run: run_grpc_server run_rest_api_server
 run:
 	go run main.go
 
